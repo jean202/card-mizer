@@ -3,34 +3,39 @@ package com.jean202.cardmizer.api.config;
 import com.jean202.cardmizer.api.demo.RecommendationDemoScenarios;
 import com.jean202.cardmizer.api.demo.RecommendationDemoScenariosLoader;
 import com.jean202.cardmizer.api.normalization.TransactionNormalizer;
-import com.jean202.cardmizer.api.normalization.MerchantNormalizationRules;
 import com.jean202.cardmizer.api.normalization.MerchantNormalizationRulesLoader;
+import com.jean202.cardmizer.api.normalization.MerchantNormalizationRules;
 import com.jean202.cardmizer.api.normalization.NormalizedTransaction;
 import com.jean202.cardmizer.common.Money;
+import com.jean202.cardmizer.core.application.GetCardPerformancePolicyService;
 import com.jean202.cardmizer.core.application.GetPerformanceOverviewService;
 import com.jean202.cardmizer.core.application.RecommendCardService;
+import com.jean202.cardmizer.core.application.ReplaceCardPerformancePolicyService;
 import com.jean202.cardmizer.core.application.RegisterCardService;
 import com.jean202.cardmizer.core.application.RecordSpendingService;
 import com.jean202.cardmizer.core.application.UpdatePriorityService;
 import com.jean202.cardmizer.core.domain.CardId;
 import com.jean202.cardmizer.core.domain.SpendingRecord;
+import com.jean202.cardmizer.core.port.in.GetCardPerformancePolicyUseCase;
 import com.jean202.cardmizer.core.port.in.GetPerformanceOverviewUseCase;
 import com.jean202.cardmizer.core.port.in.RecommendCardUseCase;
+import com.jean202.cardmizer.core.port.in.ReplaceCardPerformancePolicyUseCase;
 import com.jean202.cardmizer.core.port.in.RecordSpendingUseCase;
 import com.jean202.cardmizer.core.port.in.RegisterCardUseCase;
 import com.jean202.cardmizer.core.port.in.UpdatePriorityUseCase;
 import com.jean202.cardmizer.core.port.out.LoadCardCatalogPort;
 import com.jean202.cardmizer.core.port.out.LoadCardPerformancePoliciesPort;
 import com.jean202.cardmizer.core.port.out.LoadSpendingRecordsPort;
+import com.jean202.cardmizer.core.port.out.ReplaceCardPerformancePolicyPort;
 import com.jean202.cardmizer.core.port.out.SaveCardPerformancePolicyPort;
 import com.jean202.cardmizer.core.port.out.SaveCardPort;
 import com.jean202.cardmizer.core.port.out.SaveSpendingRecordPort;
 import com.jean202.cardmizer.core.port.out.UpdateCardPriorityPort;
 import com.jean202.cardmizer.infra.persistence.InMemoryCardCatalogAdapter;
 import com.jean202.cardmizer.infra.persistence.InMemoryCardPerformancePolicyAdapter;
-import com.jean202.cardmizer.infra.persistence.InMemorySpendingRecordAdapter;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -49,24 +54,6 @@ public class ApplicationConfiguration {
     @Bean
     public RecommendationDemoScenarios recommendationDemoScenarios() {
         return new RecommendationDemoScenariosLoader().loadDefault();
-    }
-
-    @Bean
-    public InMemoryCardCatalogAdapter inMemoryCardCatalogAdapter() {
-        return new InMemoryCardCatalogAdapter();
-    }
-
-    @Bean
-    public InMemoryCardPerformancePolicyAdapter inMemoryCardPerformancePolicyAdapter() {
-        return new InMemoryCardPerformancePolicyAdapter();
-    }
-
-    @Bean
-    public InMemorySpendingRecordAdapter inMemorySpendingRecordAdapter(
-            RecommendationDemoScenarios recommendationDemoScenarios,
-            TransactionNormalizer transactionNormalizer
-    ) {
-        return new InMemorySpendingRecordAdapter(seedScenarioRecords(recommendationDemoScenarios, transactionNormalizer));
     }
 
     @Bean
@@ -96,6 +83,28 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    public GetCardPerformancePolicyUseCase getCardPerformancePolicyUseCase(
+            LoadCardCatalogPort loadCardCatalogPort,
+            LoadCardPerformancePoliciesPort loadCardPerformancePoliciesPort
+    ) {
+        return new GetCardPerformancePolicyService(
+                loadCardCatalogPort,
+                loadCardPerformancePoliciesPort
+        );
+    }
+
+    @Bean
+    public ReplaceCardPerformancePolicyUseCase replaceCardPerformancePolicyUseCase(
+            LoadCardCatalogPort loadCardCatalogPort,
+            ReplaceCardPerformancePolicyPort replaceCardPerformancePolicyPort
+    ) {
+        return new ReplaceCardPerformancePolicyService(
+                loadCardCatalogPort,
+                replaceCardPerformancePolicyPort
+        );
+    }
+
+    @Bean
     public GetPerformanceOverviewUseCase getPerformanceOverviewUseCase(
             LoadCardCatalogPort loadCardCatalogPort,
             LoadCardPerformancePoliciesPort loadCardPerformancePoliciesPort,
@@ -119,6 +128,36 @@ public class ApplicationConfiguration {
                 loadCardPerformancePoliciesPort,
                 loadSpendingRecordsPort
         );
+    }
+
+    @Bean
+    public CommandLineRunner demoDataInitializer(
+            LoadCardCatalogPort loadCardCatalogPort,
+            SaveCardPort saveCardPort,
+            SaveCardPerformancePolicyPort saveCardPerformancePolicyPort,
+            SaveSpendingRecordPort saveSpendingRecordPort,
+            RecommendationDemoScenarios recommendationDemoScenarios,
+            TransactionNormalizer transactionNormalizer
+    ) {
+        return ignored -> {
+            if (!loadCardCatalogPort.loadAll().isEmpty()) {
+                return;
+            }
+
+            InMemoryCardCatalogAdapter seededCatalog = new InMemoryCardCatalogAdapter();
+            for (var card : seededCatalog.loadAll()) {
+                saveCardPort.save(card);
+            }
+
+            InMemoryCardPerformancePolicyAdapter seededPolicies = new InMemoryCardPerformancePolicyAdapter();
+            for (var policy : seededPolicies.loadAll()) {
+                saveCardPerformancePolicyPort.save(policy);
+            }
+
+            for (var spendingRecord : seedScenarioRecords(recommendationDemoScenarios, transactionNormalizer)) {
+                saveSpendingRecordPort.save(spendingRecord);
+            }
+        };
     }
 
     private List<SpendingRecord> seedScenarioRecords(

@@ -20,11 +20,11 @@
         <div class="hero-meta">
             <div class="meta-pill">
                 <span class="meta-label">지원 흐름</span>
-                <span class="meta-value">시나리오 선택 · 추천 실행 · 실적 확인</span>
+                <span class="meta-value">시나리오 선택 · 추천 실행 · 실적 확인 · 카드/정책 관리</span>
             </div>
             <div class="meta-pill">
                 <span class="meta-label">데이터 소스</span>
-                <span class="meta-value">YAML fixtures + in-memory adapters</span>
+                <span class="meta-value">JPA + Flyway · H2 기본 실행 · PostgreSQL 프로파일 검증</span>
             </div>
         </div>
     </header>
@@ -133,6 +133,130 @@
                 </div>
                 <div id="overview-grid" class="overview-grid"></div>
             </section>
+
+            <section class="management-grid">
+                <section class="panel catalog-panel">
+                    <div class="panel-header">
+                        <p class="panel-kicker">Catalog Control</p>
+                        <h2>카드 관리</h2>
+                    </div>
+
+                    <div id="catalog-status" class="inline-status">카드 목록을 불러오면 등록과 우선순위 조정을 바로 실행할 수 있습니다.</div>
+
+                    <div class="subsection-card">
+                        <div class="subsection-header">
+                            <h4>새 카드 등록</h4>
+                            <span id="catalog-count" class="summary-label">0 cards</span>
+                        </div>
+
+                        <form id="register-card-form" class="request-form compact-form">
+                            <label>
+                                <span>카드 ID</span>
+                                <input id="register-card-id" name="cardId" type="text" placeholder="예: SHINHAN_MR_LIFE" required>
+                            </label>
+                            <label>
+                                <span>카드 타입</span>
+                                <select id="register-card-type" name="cardType">
+                                    <option value="CREDIT">CREDIT</option>
+                                    <option value="CHECK">CHECK</option>
+                                </select>
+                            </label>
+                            <label>
+                                <span>발급사명</span>
+                                <input id="register-issuer-name" name="issuerName" type="text" placeholder="예: 신한카드" required>
+                            </label>
+                            <label>
+                                <span>우선순위</span>
+                                <input id="register-priority" name="priority" type="number" min="1" step="1" required>
+                            </label>
+                            <label class="wide">
+                                <span>상품명</span>
+                                <input id="register-product-name" name="productName" type="text" placeholder="예: Mr.Life" required>
+                            </label>
+
+                            <div class="action-row">
+                                <button type="submit" class="primary-button">카드 등록</button>
+                                <button id="reset-register-form" type="button" class="secondary-button">입력 초기화</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="subsection-card">
+                        <div class="subsection-header">
+                            <h4>우선순위 정렬</h4>
+                            <span class="summary-label">전체 카드 ID를 한 번에 전송</span>
+                        </div>
+                        <p class="field-hint">위아래 버튼으로 순서를 바꾼 뒤 저장하면 `PATCH /api/cards/priorities`가 호출됩니다.</p>
+                        <div id="priority-list" class="priority-list"></div>
+                        <div class="action-row">
+                            <button id="apply-priorities" type="button" class="primary-button">우선순위 저장</button>
+                            <button id="refresh-catalog" type="button" class="secondary-button">목록 새로고침</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel policy-panel">
+                    <div class="panel-header">
+                        <p class="panel-kicker">Policy Studio</p>
+                        <h2>카드 정책 편집</h2>
+                    </div>
+
+                    <div id="policy-status" class="inline-status">카드를 선택하면 현재 정책을 불러와 `PUT` 또는 `PATCH`로 수정할 수 있습니다.</div>
+
+                    <div class="policy-toolbar">
+                        <label class="policy-select">
+                            <span>편집할 카드</span>
+                            <select id="policy-card-select"></select>
+                        </label>
+                        <button id="load-policy" type="button" class="secondary-button">정책 다시 불러오기</button>
+                    </div>
+
+                    <div class="policy-summary">
+                        <div>
+                            <p class="summary-label">실적 구간</p>
+                            <strong id="policy-tier-count">-</strong>
+                        </div>
+                        <div>
+                            <p class="summary-label">혜택 규칙</p>
+                            <strong id="policy-rule-count">-</strong>
+                        </div>
+                        <div>
+                            <p class="summary-label">적용 방식</p>
+                            <strong>PUT / PATCH</strong>
+                        </div>
+                    </div>
+
+                    <div class="policy-grid">
+                        <section class="editor-card">
+                            <div class="subsection-header">
+                                <h4>Tiers JSON</h4>
+                                <span class="summary-label">실적 구간 배열</span>
+                            </div>
+                            <p class="field-hint">`[{ "code", "targetAmount", "benefitSummary" }]` 형식의 JSON 배열을 넣습니다.</p>
+                            <textarea id="policy-tiers-editor" class="json-editor" spellcheck="false"></textarea>
+                            <div class="action-row">
+                                <button id="patch-policy-tiers" type="button" class="secondary-button">tiers만 PATCH</button>
+                            </div>
+                        </section>
+
+                        <section class="editor-card">
+                            <div class="subsection-header">
+                                <h4>Benefit Rules JSON</h4>
+                                <span class="summary-label">혜택 규칙 배열</span>
+                            </div>
+                            <p class="field-hint">`RATE_PERCENT` 또는 `FIXED_AMOUNT` 규칙 배열을 그대로 편집합니다.</p>
+                            <textarea id="policy-rules-editor" class="json-editor rules-editor" spellcheck="false"></textarea>
+                            <div class="action-row">
+                                <button id="patch-policy-rules" type="button" class="secondary-button">benefitRules만 PATCH</button>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="action-row">
+                        <button id="replace-policy" type="button" class="primary-button">전체 정책 교체 (PUT)</button>
+                    </div>
+                </section>
+            </section>
         </section>
     </main>
 </div>
@@ -180,6 +304,20 @@
                 <span class="stat-label">남은 금액</span>
                 <strong class="remaining-amount"></strong>
             </div>
+        </div>
+    </article>
+</template>
+
+<template id="priority-item-template">
+    <article class="priority-item">
+        <div class="priority-rank"></div>
+        <div class="priority-meta">
+            <strong class="priority-name"></strong>
+            <p class="priority-id"></p>
+        </div>
+        <div class="priority-actions">
+            <button type="button" class="ghost-button move-up">위로</button>
+            <button type="button" class="ghost-button move-down">아래로</button>
         </div>
     </article>
 </template>

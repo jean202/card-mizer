@@ -1,6 +1,6 @@
 # card-mizer
 
-카드 실적과 혜택 우선순위를 계산해 결제 카드를 추천하는 Java/Spring 백엔드 데모입니다.
+카드 실적, 혜택 정책, 우선순위를 계산해 결제 카드를 추천하는 Java/Spring 백엔드 데모입니다.
 
 ## Problem
 
@@ -16,9 +16,10 @@
 
 ## Current State
 
-- `card-core`에서 사용 내역 기록, 실적 조회, 결제 추천, 카드 등록, 우선순위 조정 유스케이스를 구현했습니다.
+- `card-core`에서 사용 내역 기록, 실적 조회, 결제 추천, 카드 등록, 우선순위 조정, 카드 정책 조회/교체 유스케이스를 구현했습니다.
 - `card-api`에서 REST API와 정적 데모 UI를 함께 제공합니다.
-- `card-infra`는 현재 인메모리 어댑터와 시드 데이터로 동작합니다.
+- `card-infra`는 현재 JPA/H2 기반 어댑터와 시드 데이터로 동작합니다.
+- 스키마는 Flyway migration으로 관리하고, 기본 프로파일은 `h2`입니다.
 - 신규 카드 등록 시 기본 실적 정책을 함께 생성해 추천/실적 조회 흐름이 깨지지 않도록 맞췄습니다.
 - 가맹점/태그 정규화 규칙과 추천 시나리오는 YAML fixture로 관리합니다.
 - `./gradlew test` 기준 단위 테스트가 통과합니다.
@@ -29,14 +30,14 @@
 flowchart LR
     CLIENT["Browser / REST Client"] --> API["card-api<br/>REST API + Demo UI + Wiring"]
     API --> CORE["card-core<br/>Domain + Use Cases + Ports"]
-    API --> INFRA["card-infra<br/>In-memory Adapters"]
+    API --> INFRA["card-infra<br/>JPA Adapters"]
     INFRA --> CORE
     COMMON["card-common<br/>Money + Shared Types"] --> CORE
     COMMON --> API
     COMMON --> INFRA
 ```
 
-현재 기준선에서는 `card-api`가 시연과 조립을 맡고, 핵심 추천 규칙은 `card-core`에 남겨 두며, 저장과 시드 데이터는 `card-infra`의 인메모리 어댑터가 담당합니다.
+현재 기준선에서는 `card-api`가 시연과 조립을 맡고, 핵심 추천 규칙은 `card-core`에 남겨 두며, 저장과 시드 데이터는 `card-infra`의 JPA 어댑터가 담당합니다.
 
 ## Demo Flow
 
@@ -65,6 +66,15 @@ flowchart LR
 - 데모 UI: `http://localhost:8080`
 - 추천 시나리오 API: `GET /api/demo-scenarios/recommendations`
 
+PostgreSQL로 실행하려면 저장소의 로컬 PostgreSQL을 먼저 띄운 뒤 `postgres` 프로파일로 부팅하면 됩니다.
+
+```bash
+docker compose up -d
+./gradlew :card-api:bootRun --args='--spring.profiles.active=postgres'
+```
+
+기본 연결 정보는 `jdbc:postgresql://localhost:55432/cardmizer`, `cardmizer/cardmizer` 입니다. 다른 DB를 쓰려면 `CARD_MIZER_DB_URL`, `CARD_MIZER_DB_USERNAME`, `CARD_MIZER_DB_PASSWORD`를 덮어쓰면 됩니다.
+
 ## API Surface
 
 | Endpoint | Purpose |
@@ -75,6 +85,9 @@ flowchart LR
 | `POST /api/spending-records` | 수동 사용 내역 저장 |
 | `POST /api/cards` | 카드 등록과 기본 실적 정책 생성 |
 | `PATCH /api/cards/priorities` | 등록된 카드 전체의 우선순위 재정렬 |
+| `GET /api/cards/{cardId}/performance-policy` | 카드별 실적/혜택 정책 조회 |
+| `PUT /api/cards/{cardId}/performance-policy` | 카드별 실적/혜택 정책 전체 교체 |
+| `PATCH /api/cards/{cardId}/performance-policy` | 카드별 실적/혜택 정책 일부 필드만 교체 |
 
 ## Example Request
 
@@ -147,7 +160,8 @@ curl "http://localhost:8080/api/performance-overview?yearMonth=2026-03"
 - `card-common`: 공통 값 객체와 공통 타입
 - `card-core`: 도메인 모델, 유스케이스, 포트
 - `card-api`: REST API, 정규화, 데모 시나리오, 정적 UI, 조립 루트
-- `card-infra`: 현재 인메모리 영속성 어댑터
+- `card-infra`: 현재 JPA 기반 영속성 어댑터
+- `db/migration`: Flyway schema migration
 
 현재 구조는 "실행 가능한 데모를 먼저 만들고, 이후 persistence adapter를 교체하는" 흐름에 맞춰져 있습니다. 핵심 추천 로직은 `card-core`에 남겨 두고, 시연용 요소와 프레임워크 의존성은 바깥으로 밀어냈습니다.
 
@@ -160,9 +174,9 @@ curl "http://localhost:8080/api/performance-overview?yearMonth=2026-03"
 
 ## Deferred Work
 
-- JPA/PostgreSQL 기반 영속성 어댑터
-- 신규 등록 카드의 실적/혜택 정책 관리 API
-- 운영용 입력 검증과 예외 응답 형식 고도화
+- 카드 목록 전용 조회 API 추가
+- 정책 편집 UI를 JSON 에디터보다 구조화된 UX로 고도화
+- 운영용 PostgreSQL 설정과 마이그레이션 전략 정리
 - 카드사 API 연동과 알림 어댑터
 - 통합 테스트와 API 문서 고도화
 
@@ -184,7 +198,8 @@ curl "http://localhost:8080/api/performance-overview?yearMonth=2026-03"
 - `docs/module-structure.md`: 모듈/패키지 구조
 - `docs/adr/README.md`: ADR 목록과 상태
 - `docs/delivery-plan.md`: 다음 마일스톤과 작업 큐
+- `docs/work-log-2026-03-31.md`: 2026-03-31 구현/검증 복기 노트
 
 ## Status
 
-현재 기준선은 "문서만 있는 설계 저장소"가 아니라 "인메모리 기반으로 동작하는 추천/관리 데모"입니다. 다음 단계는 카드 정책 관리, 입력 안정성 보강, 영속성 어댑터 연결로 운영형 구조를 다듬는 것입니다.
+현재 기준선은 "문서만 있는 설계 저장소"가 아니라 "Flyway + JPA/H2 기반으로 동작하는 추천/관리 데모"입니다. 다음 단계는 입력 안정성 보강, 카드 정책 편집 UX 보강, PostgreSQL 운영 환경 정리로 구조를 다듬는 것입니다.

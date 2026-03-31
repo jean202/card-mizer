@@ -7,6 +7,10 @@ import com.jean202.cardmizer.common.Money;
 import com.jean202.cardmizer.core.domain.CardId;
 import com.jean202.cardmizer.core.domain.SpendingRecord;
 import com.jean202.cardmizer.core.port.in.RecordSpendingUseCase;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
@@ -33,7 +37,7 @@ public class SpendingRecordController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@RequestBody CreateSpendingRecordRequest request) {
+    public void create(@Valid @RequestBody CreateSpendingRecordRequest request) {
         NormalizedTransaction normalizedTransaction = transactionNormalizer.normalize(
                 request.merchantName(),
                 request.merchantCategory(),
@@ -43,13 +47,17 @@ public class SpendingRecordController {
     }
 
     public record CreateSpendingRecordRequest(
+            @NotBlank(message = "cardId must not be blank")
             String cardId,
+            @Positive(message = "amount must be greater than 0")
             long amount,
+            @NotNull(message = "spentOn must not be null")
             @JsonFormat(pattern = "yyyy-MM-dd")
             LocalDate spentOn,
+            @NotBlank(message = "merchantName must not be blank")
             String merchantName,
             String merchantCategory,
-            Set<String> paymentTags
+            Set<@NotBlank(message = "paymentTags must not contain blank values") String> paymentTags
     ) {
         SpendingRecord toDomain(NormalizedTransaction normalizedTransaction) {
             return new SpendingRecord(

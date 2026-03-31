@@ -2,18 +2,14 @@
 
 ## Accepted
 
-- `ADR-001-adopt-hexagonal-architecture.md`
-- `ADR-002-adopt-gradle-multi-module.md`
-
-## Backlog
-
-- `ADR-003-start-with-manual-input-before-card-company-integration.md`
-- `ADR-004-keep-recommendation-engine-in-card-core.md`
-- `ADR-005-expose-rest-api-before-building-frontend.md`
-- `ADR-006-use-postgresql-and-jpa-for-initial-persistence.md`
+- `ADR-001-adopt-hexagonal-architecture.md` — 헥사고날 아키텍처 채택
+- `ADR-002-adopt-gradle-multi-module.md` — Gradle 멀티모듈 구조 채택
+- `ADR-003-start-with-manual-input-before-card-company-integration.md` — 카드사 연동 전 수동 입력으로 시작
+- `ADR-004-three-tier-recommendation-scoring.md` — 3구간 가중치 기반 추천 스코어링
+- `ADR-005-store-card-performance-policy-as-json.md` — 카드 정책을 JSON으로 저장
+- `ADR-006-model-benefit-estimation-with-exclusive-and-shared-groups.md` — 배타 그룹과 공유 한도를 포함한 혜택 추정 모델
 
 ## Notes
 
-- 현재 저장소 기준으로 핵심 구조 결정 두 개는 `Accepted` 상태로 코드와 문서에 반영돼 있다.
-- backlog 항목은 아직 독립 ADR로 굳히기 전인 후속 결정 후보들이다.
-- 구현과 문서가 다시 어긋나기 시작하면 backlog 항목을 우선순위 순으로 ADR로 승격한다.
+- ADR-001~002는 프로젝트 구조, ADR-003~006은 도메인 설계와 저장 전략에 대한 핵심 판단을 기록한다.
+- 각 ADR의 Consequences 절에 후속 작업이나 한계가 명시돼 있으므로, 관련 변경 시 해당 ADR을 함께 갱신한다.

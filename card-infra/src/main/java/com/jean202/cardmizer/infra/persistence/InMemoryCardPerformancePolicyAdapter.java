@@ -7,11 +7,15 @@ import com.jean202.cardmizer.core.domain.CardId;
 import com.jean202.cardmizer.core.domain.CardPerformancePolicy;
 import com.jean202.cardmizer.core.domain.PerformanceTier;
 import com.jean202.cardmizer.core.port.out.LoadCardPerformancePoliciesPort;
+import com.jean202.cardmizer.core.port.out.ReplaceCardPerformancePolicyPort;
 import com.jean202.cardmizer.core.port.out.SaveCardPerformancePolicyPort;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class InMemoryCardPerformancePolicyAdapter implements LoadCardPerformancePoliciesPort, SaveCardPerformancePolicyPort {
+public class InMemoryCardPerformancePolicyAdapter implements
+        LoadCardPerformancePoliciesPort,
+        SaveCardPerformancePolicyPort,
+        ReplaceCardPerformancePolicyPort {
     private final CopyOnWriteArrayList<CardPerformancePolicy> policies = new CopyOnWriteArrayList<>(initialPolicies());
 
     @Override
@@ -26,6 +30,17 @@ public class InMemoryCardPerformancePolicyAdapter implements LoadCardPerformance
                 .anyMatch(cardPerformancePolicy.cardId()::equals);
         if (duplicatePolicy) {
             throw new IllegalArgumentException("Card policy already exists: " + cardPerformancePolicy.cardId().value());
+        }
+        policies.add(cardPerformancePolicy);
+    }
+
+    @Override
+    public synchronized void replace(CardPerformancePolicy cardPerformancePolicy) {
+        for (int index = 0; index < policies.size(); index++) {
+            if (policies.get(index).cardId().equals(cardPerformancePolicy.cardId())) {
+                policies.set(index, cardPerformancePolicy);
+                return;
+            }
         }
         policies.add(cardPerformancePolicy);
     }

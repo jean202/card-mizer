@@ -95,12 +95,52 @@ public final class BenefitRule {
         return benefitSummary;
     }
 
+    public Set<String> merchantCategories() {
+        return merchantCategories;
+    }
+
+    public Set<String> merchantKeywords() {
+        return merchantKeywords;
+    }
+
+    public Set<String> requiredTags() {
+        return requiredTags;
+    }
+
+    public Set<String> excludedTags() {
+        return excludedTags;
+    }
+
     public String exclusiveGroupId() {
         return exclusiveGroupId;
     }
 
     public String sharedLimitGroupId() {
         return sharedLimitGroupId;
+    }
+
+    public BenefitType benefitType() {
+        return benefitType;
+    }
+
+    public int rateBasisPoints() {
+        return rateBasisPoints;
+    }
+
+    public Money fixedBenefitAmount() {
+        return fixedBenefitAmount;
+    }
+
+    public Money minimumPaymentAmount() {
+        return minimumPaymentAmount;
+    }
+
+    public Money perTransactionCap() {
+        return perTransactionCap;
+    }
+
+    public Money minimumPreviousMonthSpent() {
+        return minimumPreviousMonthSpent;
     }
 
     public boolean matches(String merchantName, String merchantCategory, Set<String> paymentTags) {
@@ -147,6 +187,10 @@ public final class BenefitRule {
         return capFor(previousMonthSpent, sharedMonthlyCapTiers);
     }
 
+    public List<BenefitMonthlyCapTier> monthlyCapTiers() {
+        return monthlyCapTiers;
+    }
+
     public Money yearlyBenefitCap() {
         return yearlyBenefitCap;
     }
@@ -157,6 +201,10 @@ public final class BenefitRule {
 
     public int yearlyCountLimit() {
         return yearlyCountLimit;
+    }
+
+    public List<BenefitMonthlyCapTier> sharedMonthlyCapTiers() {
+        return sharedMonthlyCapTiers;
     }
 
     public Money sharedYearlyBenefitCap() {

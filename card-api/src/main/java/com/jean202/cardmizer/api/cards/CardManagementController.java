@@ -6,6 +6,11 @@ import com.jean202.cardmizer.core.domain.CardType;
 import com.jean202.cardmizer.core.domain.PriorityStrategy;
 import com.jean202.cardmizer.core.port.in.RegisterCardUseCase;
 import com.jean202.cardmizer.core.port.in.UpdatePriorityUseCase;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import java.util.List;
 import java.util.Locale;
 import org.springframework.http.HttpStatus;
@@ -32,7 +37,7 @@ public class CardManagementController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RegisterCardResponse register(@RequestBody RegisterCardRequest request) {
+    public RegisterCardResponse register(@Valid @RequestBody RegisterCardRequest request) {
         Card card = request.toDomain();
         registerCardUseCase.register(card);
         return RegisterCardResponse.from(card);
@@ -40,15 +45,21 @@ public class CardManagementController {
 
     @PatchMapping("/priorities")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePriorities(@RequestBody UpdatePrioritiesRequest request) {
+    public void updatePriorities(@Valid @RequestBody UpdatePrioritiesRequest request) {
         updatePriorityUseCase.update(request.toDomain());
     }
 
     public record RegisterCardRequest(
+            @NotBlank(message = "cardId must not be blank")
             String cardId,
+            @NotBlank(message = "issuerName must not be blank")
             String issuerName,
+            @NotBlank(message = "productName must not be blank")
             String productName,
+            @NotBlank(message = "cardType must not be blank")
+            @Pattern(regexp = "(?i)^(CREDIT|CHECK)$", message = "cardType must be CREDIT or CHECK")
             String cardType,
+            @Positive(message = "priority must be greater than 0")
             int priority
     ) {
         Card toDomain() {
@@ -90,7 +101,10 @@ public class CardManagementController {
         }
     }
 
-    public record UpdatePrioritiesRequest(List<String> orderedCardIds) {
+    public record UpdatePrioritiesRequest(
+            @NotEmpty(message = "orderedCardIds must not be empty")
+            List<@NotBlank(message = "orderedCardIds must not contain blank values") String> orderedCardIds
+    ) {
         PriorityStrategy toDomain() {
             if (orderedCardIds == null) {
                 throw new IllegalArgumentException("orderedCardIds must not be null");

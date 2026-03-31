@@ -8,6 +8,10 @@ import com.jean202.cardmizer.core.domain.RecommendationContext;
 import com.jean202.cardmizer.core.domain.RecommendationResult;
 import com.jean202.cardmizer.core.domain.SpendingPeriod;
 import com.jean202.cardmizer.core.port.in.RecommendCardUseCase;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Pattern;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +38,7 @@ public class RecommendationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public RecommendationResponse recommend(@RequestBody RecommendationRequest request) {
+    public RecommendationResponse recommend(@Valid @RequestBody RecommendationRequest request) {
         NormalizedTransaction normalizedTransaction = transactionNormalizer.normalize(
                 request.merchantName(),
                 request.merchantCategory(),
@@ -45,11 +49,15 @@ public class RecommendationController {
     }
 
     public record RecommendationRequest(
+            @NotBlank(message = "spendingMonth must not be blank")
+            @Pattern(regexp = "^\\d{4}-\\d{2}$", message = "spendingMonth must match yyyy-MM")
             String spendingMonth,
+            @Positive(message = "amount must be greater than 0")
             long amount,
+            @NotBlank(message = "merchantName must not be blank")
             String merchantName,
             String merchantCategory,
-            Set<String> paymentTags
+            Set<@NotBlank(message = "paymentTags must not contain blank values") String> paymentTags
     ) {
         RecommendationContext toDomain(NormalizedTransaction normalizedTransaction) {
             return new RecommendationContext(
