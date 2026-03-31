@@ -1,0 +1,161 @@
+categoryAliases:
+  카페: COFFEE
+  커피: COFFEE
+  커피전문점: COFFEE
+  영화: MOVIE
+  영화관: MOVIE
+  문화: CULTURE
+  공연: CULTURE
+  도서: CULTURE
+  배달: FOOD_DELIVERY
+  배달앱: FOOD_DELIVERY
+  대중교통: PUBLIC_TRANSIT
+  교통: PUBLIC_TRANSIT
+  지하철: PUBLIC_TRANSIT
+  버스: PUBLIC_TRANSIT
+  쇼핑: ONLINE_SHOPPING
+  쇼핑몰: ONLINE_SHOPPING
+  온라인쇼핑: ONLINE_SHOPPING
+  온라인몰: ONLINE_SHOPPING
+  온라인패션: ONLINE_FASHION
+  패션: ONLINE_FASHION
+  마트: BIG_MART
+  대형마트: BIG_MART
+  편의점: CONVENIENCE_STORE
+  음식점: RESTAURANT
+  식당: RESTAURANT
+  일반음식점: RESTAURANT
+  레스토랑: RESTAURANT
+  통신: MOBILE_BILL
+  통신요금: MOBILE_BILL
+  택시: TAXI
+  OTT: OTT
+  디지털콘텐츠: DIGITAL_CONTENT
+  디지털: DIGITAL_CONTENT
+  멤버십: MEMBERSHIP
+  구독서비스: MEMBERSHIP
+
+tagAliases:
+  KB_PAY: KB_PAY
+  KBPAY: KB_PAY
+  KB PAY: KB_PAY
+  KB Pay결제: KB_PAY
+  KB Pay: KB_PAY
+  KB PAY결제: KB_PAY
+  간편결제: SIMPLE_PAY
+  SIMPLEPAY: SIMPLE_PAY
+  SIMPLE PAY: SIMPLE_PAY
+  온라인: ONLINE
+  오프라인: OFFLINE
+  매장: OFFLINE
+  정기결제: SUBSCRIPTION
+  구독: SUBSCRIPTION
+  자동납부: AUTO_BILL
+  AUTOBILL: AUTO_BILL
+  AUTO BILL: AUTO_BILL
+  NAVER PAY: NAVER_PAY
+  NAVERPAY: NAVER_PAY
+  KAKAO PAY: KAKAO_PAY
+  KAKAOPAY: KAKAO_PAY
+  TOSS PAY: TOSS_PAY
+  TOSSPAY: TOSS_PAY
+  PAY CO: PAYCO
+  SAMSUNG PAY: SAMSUNG_PAY
+  APPLEPAY: APPLE_PAY
+  APPLE PAY: APPLE_PAY
+  SAMSUNGPAY: SAMSUNG_PAY
+
+simplePayTags:
+  - KB_PAY
+  - NAVER_PAY
+  - KAKAO_PAY
+  - TOSS_PAY
+  - PAYCO
+  - APPLE_PAY
+  - SAMSUNG_PAY
+
+onlineCategories:
+  - FOOD_DELIVERY
+  - CULTURE
+  - ONLINE_SHOPPING
+  - ONLINE_FASHION
+  - OTT
+  - DIGITAL_CONTENT
+  - MEMBERSHIP
+
+offlineCategories:
+  - MOVIE
+  - COFFEE
+  - BIG_MART
+  - CONVENIENCE_STORE
+  - PUBLIC_TRANSIT
+  - TAXI
+  - RESTAURANT
+
+subscriptionCategories:
+  - OTT
+  - MEMBERSHIP
+
+digitalContentCategories:
+  - OTT
+  - DIGITAL_CONTENT
+
+merchantRules:
+  - category: MOVIE
+    keywords: [CGV, MEGABOX, 메가박스, 롯데시네마, LOTTE CINEMA, 씨네큐, CINE Q]
+    inferredTags: [OFFLINE]
+  - category: COFFEE
+    keywords:
+      [STARBUCKS, 스타벅스, 투썸, A TWOSOME PLACE, 메가커피, MEGA COFFEE, 이디야, EDIYA, 커피빈,
+       COFFEE BEAN, 빽다방, HOLLYS, 할리스, COMPOSE COFFEE, 컴포즈커피, PAUL BASSETT, 폴바셋,
+       ANGELINUS, 엔제리너스]
+    inferredTags: [OFFLINE]
+  - category: OTT
+    keywords:
+      [NETFLIX, 넷플릭스, YOUTUBE PREMIUM, 유튜브 프리미엄, DISNEY+, 디즈니, TVING, 티빙, WAVVE, 웨이브,
+       WATCHA, 왓챠, COUPANG PLAY, 쿠팡플레이, APPLE TV, APPLE TV+, 애플티비]
+    inferredTags: [SUBSCRIPTION, DIGITAL_CONTENT, ONLINE]
+  - category: DIGITAL_CONTENT
+    keywords:
+      [SPOTIFY, 스포티파이, MELON, 멜론, FLO, 플로, GENIE, 지니, APP STORE, 앱스토어, GOOGLE PLAY,
+       구글플레이, ONE STORE, 원스토어]
+    inferredTags: [SUBSCRIPTION, DIGITAL_CONTENT, ONLINE]
+  - category: MEMBERSHIP
+    keywords: [COUPANG WOW, 쿠팡와우, NAVER PLUS, 네이버플러스, 컬리멤버스, KURLY MEMBERS, 신세계유니버스, SHINSEGAE UNIVERSE]
+    inferredTags: [SUBSCRIPTION, ONLINE]
+  - category: FOOD_DELIVERY
+    keywords: [배달의민족, BAEMIN, 배민1, 요기요, YOGIYO, 쿠팡이츠, COUPANG EATS, 땡겨요]
+    inferredTags: [ONLINE]
+  - category: CULTURE
+    keywords: [INTERPARK, 인터파크, YES24, 예스24, MELON TICKET, 멜론티켓, TICKETLINK, 티켓링크, 알라딘, ALADIN, 교보문고, KYOBO]
+    inferredTags: [ONLINE]
+  - category: PUBLIC_TRANSIT
+    keywords:
+      [서울교통공사, 부산교통공사, KORAIL, 코레일, SRT, SR, 티머니, T-MONEY, 캐시비, CASHBEE,
+       경기버스, 시내버스, 광역버스]
+    inferredTags: [OFFLINE]
+  - category: RESTAURANT
+    keywords:
+      [맥도날드, MCDONALDS, 롯데리아, LOTTERIA, 버거킹, BURGER KING, 맘스터치, MOMS TOUCH,
+       KFC, SUBWAY, 서브웨이, 쉐이크쉑, SHAKE SHACK, 노브랜드버거, NBB, 한솥, HANSOT]
+    inferredTags: [OFFLINE]
+  - category: ONLINE_FASHION
+    keywords: [MUSINSA, 무신사, 29CM, W CONCEPT, 지그재그, ABLY, 에이블리, BRANDI, 브랜디, HAGO, 하고]
+    inferredTags: [ONLINE]
+  - category: ONLINE_SHOPPING
+    keywords:
+      [COUPANG, 쿠팡, 11번가, G마켓, 옥션, AUCTION, SSG.COM, 신세계몰, 마켓컬리, 컬리, 올리브영,
+       OLIVE YOUNG, 오늘의집, OHOUSE, TEMU, 알리익스프레스, ALIEXPRESS]
+    inferredTags: [ONLINE]
+  - category: BIG_MART
+    keywords: [이마트, EMART, HOMEPLUS, 홈플러스, 롯데마트, LOTTE MART, COSTCO, 코스트코, 트레이더스, TRADERS, 노브랜드]
+    inferredTags: [OFFLINE]
+  - category: CONVENIENCE_STORE
+    keywords: [GS25, CU, 세븐일레븐, 7-ELEVEN, EMART24, 이마트24, MINISTOP, 미니스톱]
+    inferredTags: [OFFLINE]
+  - category: MOBILE_BILL
+    keywords: [SKT, SK TELECOM, SK텔레콤, KT, 케이티, LG U+, LGU+, LG유플러스]
+    inferredTags: [AUTO_BILL]
+  - category: TAXI
+    keywords: [카카오T, KAKAO T, UT, 우티, 타다, TADA, i.M, IM택시]
+    inferredTags: []

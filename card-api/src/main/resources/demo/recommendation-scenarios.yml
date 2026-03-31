@@ -1,0 +1,174 @@
+scenarios:
+  - id: kpass-transit-threshold
+    title: K-패스 실적 달성과 대중교통 할인
+    description: 전월 40만원 실적을 채운 상태에서 이번 달 대중교통 결제로 구간을 넘기며 K-패스 삼성카드가 추천되는 시나리오
+    expectedRecommendedCardId: SAMSUNG_KPASS
+    request:
+      spendingMonth: "2026-03"
+      amount: 20000
+      merchantName: "서울교통공사"
+      merchantCategory: "대중교통"
+      paymentTags: []
+    seedRecords:
+      - cardId: SAMSUNG_KPASS
+        amount: 450000
+        spentOn: "2026-02-10"
+        merchantName: "쿠팡"
+        merchantCategory: "온라인쇼핑"
+        paymentTags: [ONLINE]
+      - cardId: HYUNDAI_ZERO_POINT
+        amount: 150000
+        spentOn: "2026-02-08"
+        merchantName: "이마트"
+        merchantCategory: "마트"
+        paymentTags: [OFFLINE]
+      - cardId: SAMSUNG_KPASS
+        amount: 380000
+        spentOn: "2026-03-05"
+        merchantName: "티머니"
+        merchantCategory: "대중교통"
+        paymentTags: []
+      - cardId: HYUNDAI_ZERO_POINT
+        amount: 90000
+        spentOn: "2026-03-07"
+        merchantName: "이마트"
+        merchantCategory: "마트"
+        paymentTags: [OFFLINE]
+
+  - id: nori-movie-kbpay-stack
+    title: 노리2 영화 할인과 KB Pay 추가 할인 중첩
+    description: CGV 오프라인 결제를 KB Pay로 하면 노리2 체크카드의 영화 할인과 KB Pay 추가 할인이 같이 반영되는 시나리오
+    expectedRecommendedCardId: KB_NORI2_KBPAY
+    request:
+      spendingMonth: "2026-04"
+      amount: 15000
+      merchantName: "CGV 왕십리"
+      merchantCategory: null
+      paymentTags: [KB Pay]
+    seedRecords:
+      - cardId: KB_NORI2_KBPAY
+        amount: 300000
+        spentOn: "2026-03-10"
+        merchantName: "쿠팡"
+        merchantCategory: "온라인쇼핑"
+        paymentTags: [ONLINE]
+      - cardId: SAMSUNG_KPASS
+        amount: 100000
+        spentOn: "2026-03-09"
+        merchantName: "쿠팡"
+        merchantCategory: "온라인쇼핑"
+        paymentTags: [ONLINE]
+      - cardId: KB_NORI2_KBPAY
+        amount: 150000
+        spentOn: "2026-04-05"
+        merchantName: "이마트"
+        merchantCategory: "마트"
+        paymentTags: [OFFLINE]
+      - cardId: SAMSUNG_KPASS
+        amount: 155000
+        spentOn: "2026-04-07"
+        merchantName: "쿠팡"
+        merchantCategory: "온라인쇼핑"
+        paymentTags: [ONLINE]
+
+  - id: my-wesh-ott-benefit
+    title: My WE:SH 노는데 진심과 OTT 할인
+    description: 전월 40만원 실적이 있는 상태에서 넷플릭스 결제를 하면 My WE:SH 카드의 OTT 30% 할인 때문에 추천되는 시나리오
+    expectedRecommendedCardId: KB_MY_WESH
+    request:
+      spendingMonth: "2026-05"
+      amount: 16900
+      merchantName: "넷플릭스"
+      merchantCategory: null
+      paymentTags: []
+    seedRecords:
+      - cardId: KB_MY_WESH
+        amount: 450000
+        spentOn: "2026-04-12"
+        merchantName: "쿠팡"
+        merchantCategory: "온라인쇼핑"
+        paymentTags: [ONLINE]
+      - cardId: SAMSUNG_KPASS
+        amount: 420000
+        spentOn: "2026-04-11"
+        merchantName: "쿠팡"
+        merchantCategory: "온라인쇼핑"
+        paymentTags: [ONLINE]
+      - cardId: KB_NORI2_KBPAY
+        amount: 320000
+        spentOn: "2026-04-10"
+        merchantName: "쿠팡"
+        merchantCategory: "온라인쇼핑"
+        paymentTags: [ONLINE]
+      - cardId: KB_MY_WESH
+        amount: 230000
+        spentOn: "2026-05-05"
+        merchantName: "스타벅스 강남"
+        merchantCategory: "카페"
+        paymentTags: [OFFLINE]
+      - cardId: SAMSUNG_KPASS
+        amount: 180000
+        spentOn: "2026-05-06"
+        merchantName: "쿠팡"
+        merchantCategory: "온라인쇼핑"
+        paymentTags: [ONLINE]
+      - cardId: HYUNDAI_ZERO_POINT
+        amount: 210000
+        spentOn: "2026-05-07"
+        merchantName: "이마트"
+        merchantCategory: "마트"
+        paymentTags: [OFFLINE]
+
+  - id: hyundai-simple-pay-online
+    title: 현대 ZERO 포인트형 온라인 간편결제
+    description: 다른 카드가 이미 실적 구간을 채운 상태에서 온라인 간편결제를 하면 현대 ZERO Edition2 포인트형이 추천되는 시나리오
+    expectedRecommendedCardId: HYUNDAI_ZERO_POINT
+    request:
+      spendingMonth: "2026-06"
+      amount: 40000
+      merchantName: "오늘의집"
+      merchantCategory: null
+      paymentTags: [Naver Pay, 온라인]
+    seedRecords:
+      - cardId: SAMSUNG_KPASS
+        amount: 350000
+        spentOn: "2026-05-12"
+        merchantName: "쿠팡"
+        merchantCategory: "온라인쇼핑"
+        paymentTags: [ONLINE]
+      - cardId: KB_MY_WESH
+        amount: 450000
+        spentOn: "2026-05-11"
+        merchantName: "쿠팡"
+        merchantCategory: "온라인쇼핑"
+        paymentTags: [ONLINE]
+      - cardId: KB_NORI2_KBPAY
+        amount: 350000
+        spentOn: "2026-05-10"
+        merchantName: "쿠팡"
+        merchantCategory: "온라인쇼핑"
+        paymentTags: [ONLINE]
+      - cardId: SAMSUNG_KPASS
+        amount: 900000
+        spentOn: "2026-06-05"
+        merchantName: "쿠팡"
+        merchantCategory: "온라인쇼핑"
+        paymentTags: [ONLINE]
+      - cardId: KB_MY_WESH
+        amount: 450000
+        spentOn: "2026-06-06"
+        merchantName: "스타벅스 강남"
+        merchantCategory: "카페"
+        paymentTags: [OFFLINE]
+      - cardId: KB_NORI2_KBPAY
+        amount: 850000
+        spentOn: "2026-06-07"
+        merchantName: "이마트"
+        merchantCategory: "마트"
+        paymentTags: [OFFLINE]
+      - cardId: HYUNDAI_ZERO_POINT
+        amount: 120000
+        spentOn: "2026-06-08"
+        merchantName: "이마트"
+        merchantCategory: "마트"
+        paymentTags: [OFFLINE]

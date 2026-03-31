@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Mizer Demo</title>
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div class="page-shell">
+    <header class="hero">
+        <div class="hero-copy">
+            <p class="eyebrow">Portfolio Demo</p>
+            <h1>Card Mizer</h1>
+            <p class="hero-text">
+                실제 카드 혜택 규칙, 전월 실적, 가맹점 정규화까지 묶어서
+                "이번 결제에 어떤 카드를 써야 하는가"를 바로 시연하는 데모 화면입니다.
+            </p>
+        </div>
+        <div class="hero-meta">
+            <div class="meta-pill">
+                <span class="meta-label">지원 흐름</span>
+                <span class="meta-value">시나리오 선택 · 추천 실행 · 실적 확인</span>
+            </div>
+            <div class="meta-pill">
+                <span class="meta-label">데이터 소스</span>
+                <span class="meta-value">YAML fixtures + in-memory adapters</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard">
+        <aside class="panel scenario-panel">
+            <div class="panel-header">
+                <p class="panel-kicker">Scenario Library</p>
+                <h2>추천 시나리오</h2>
+            </div>
+            <div id="scenario-list" class="scenario-list"></div>
+        </aside>
+
+        <section class="workspace">
+            <div class="workspace-grid">
+                <section class="panel control-panel">
+                    <div class="panel-header">
+                        <p class="panel-kicker">Request Builder</p>
+                        <h2>추천 요청</h2>
+                    </div>
+
+                    <div class="scenario-summary">
+                        <div>
+                            <p class="summary-label">선택된 시나리오</p>
+                            <strong id="selected-scenario-title">로딩 중</strong>
+                        </div>
+                        <div>
+                            <p class="summary-label">예상 추천 카드</p>
+                            <strong id="selected-scenario-expected">-</strong>
+                        </div>
+                        <div>
+                            <p class="summary-label">Seed Records</p>
+                            <strong id="selected-scenario-seed-count">-</strong>
+                        </div>
+                    </div>
+
+                    <p id="selected-scenario-description" class="scenario-description"></p>
+
+                    <form id="recommendation-form" class="request-form">
+                        <label>
+                            <span>기준 월</span>
+                            <input id="spending-month" name="spendingMonth" type="month" required>
+                        </label>
+                        <label>
+                            <span>가맹점명</span>
+                            <input id="merchant-name" name="merchantName" type="text" placeholder="예: CGV 왕십리" required>
+                        </label>
+                        <label>
+                            <span>가맹점 카테고리</span>
+                            <input id="merchant-category" name="merchantCategory" type="text" placeholder="비워두면 정규화 규칙 사용">
+                        </label>
+                        <label>
+                            <span>결제 금액</span>
+                            <input id="amount" name="amount" type="number" min="0" step="100" required>
+                        </label>
+                        <label class="wide">
+                            <span>결제 태그</span>
+                            <input id="payment-tags" name="paymentTags" type="text" placeholder="예: KB Pay, 온라인">
+                        </label>
+
+                        <div class="action-row">
+                            <button id="run-scenario" type="submit" class="primary-button">추천 실행</button>
+                            <button id="reset-scenario" type="button" class="secondary-button">시나리오 값으로 복원</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="panel result-panel">
+                    <div class="panel-header">
+                        <p class="panel-kicker">Recommendation</p>
+                        <h2>추천 결과</h2>
+                    </div>
+
+                    <div id="result-state" class="result-state loading">시나리오를 준비하는 중입니다.</div>
+
+                    <div id="recommendation-result" class="result-shell hidden">
+                        <div class="recommendation-hero">
+                            <div>
+                                <p class="summary-label">추천 카드</p>
+                                <h3 id="recommended-card-name">-</h3>
+                                <p id="recommended-card-id" class="card-id">-</p>
+                            </div>
+                            <div id="recommendation-verdict" class="verdict-badge">-</div>
+                        </div>
+
+                        <div class="reason-card">
+                            <p class="summary-label">선택 사유</p>
+                            <p id="recommendation-reason"></p>
+                        </div>
+
+                        <div class="alternatives-card">
+                            <div class="subsection-header">
+                                <h4>대안 카드</h4>
+                                <span id="last-run-at" class="summary-label">-</span>
+                            </div>
+                            <div id="alternative-list" class="alternative-list"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="panel overview-panel">
+                <div class="panel-header">
+                    <p class="panel-kicker">Performance Overview</p>
+                    <h2>선택한 월의 실적 현황</h2>
+                </div>
+                <div id="overview-grid" class="overview-grid"></div>
+            </section>
+        </section>
+    </main>
+</div>
+
+<template id="scenario-item-template">
+    <button type="button" class="scenario-item">
+        <span class="scenario-tag"></span>
+        <strong class="scenario-title"></strong>
+        <p class="scenario-caption"></p>
+    </button>
+</template>
+
+<template id="alternative-item-template">
+    <article class="alternative-item">
+        <div class="alternative-head">
+            <strong class="alternative-name"></strong>
+            <span class="alternative-score"></span>
+        </div>
+        <p class="alternative-reason"></p>
+    </article>
+</template>
+
+<template id="overview-item-template">
+    <article class="overview-item">
+        <div class="overview-head">
+            <div>
+                <strong class="overview-name"></strong>
+                <p class="overview-tier"></p>
+            </div>
+            <span class="overview-priority"></span>
+        </div>
+        <div class="progress-bar">
+            <span class="progress-fill"></span>
+        </div>
+        <div class="overview-stats">
+            <div>
+                <span class="stat-label">사용 금액</span>
+                <strong class="spent-amount"></strong>
+            </div>
+            <div>
+                <span class="stat-label">목표 금액</span>
+                <strong class="target-amount"></strong>
+            </div>
+            <div>
+                <span class="stat-label">남은 금액</span>
+                <strong class="remaining-amount"></strong>
+            </div>
+        </div>
+    </article>
+</template>
+
+<script src="/app.js" defer></script>
+</body>
+</html>

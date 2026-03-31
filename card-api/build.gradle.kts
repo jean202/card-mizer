@@ -7,6 +7,7 @@ plugins {
 dependencies {
     implementation(project(":card-common"))
     implementation(project(":card-core"))
+    implementation(project(":card-infra"))
     implementation("org.springframework.boot:spring-boot-starter-web")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

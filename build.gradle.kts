@@ -21,13 +21,14 @@ subprojects {
 
     extensions.configure<JavaPluginExtension> {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(21))
+            languageVersion.set(JavaLanguageVersion.of(17))
         }
     }
 
     dependencies {
         add("testImplementation", platform("org.junit:junit-bom:5.12.1"))
         add("testImplementation", "org.junit.jupiter:junit-jupiter")
+        add("testRuntimeOnly", "org.junit.platform:junit-platform-launcher")
     }
 
     tasks.withType<Test>().configureEach {
