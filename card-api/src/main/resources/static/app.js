@@ -50,11 +50,15 @@ const elements = {
   loadPolicy: document.getElementById("load-policy"),
   policyTierCount: document.getElementById("policy-tier-count"),
   policyRuleCount: document.getElementById("policy-rule-count"),
-  policyTiersEditor: document.getElementById("policy-tiers-editor"),
-  policyRulesEditor: document.getElementById("policy-rules-editor"),
+  tierFormList: document.getElementById("tier-form-list"),
+  ruleFormList: document.getElementById("rule-form-list"),
+  addTierButton: document.getElementById("add-tier"),
+  addRuleButton: document.getElementById("add-rule"),
   patchPolicyTiers: document.getElementById("patch-policy-tiers"),
   patchPolicyRules: document.getElementById("patch-policy-rules"),
   replacePolicy: document.getElementById("replace-policy"),
+  syncStatus: document.getElementById("sync-status"),
+  syncTransactions: document.getElementById("sync-transactions"),
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -154,6 +158,18 @@ function bindEvents() {
 
   elements.patchPolicyRules.addEventListener("click", async () => {
     await patchPolicy("benefitRules");
+  });
+
+  elements.addTierButton.addEventListener("click", () => {
+    elements.tierFormList.append(createTierRow());
+  });
+
+  elements.addRuleButton.addEventListener("click", () => {
+    elements.ruleFormList.append(createRuleCard({}, true));
+  });
+
+  elements.syncTransactions.addEventListener("click", async () => {
+    await syncTransactions();
   });
 }
 
@@ -408,6 +424,40 @@ async function updatePriorities() {
   }
 }
 
+async function syncTransactions() {
+  const yearMonth = elements.spendingMonth.value;
+  if (!yearMonth) {
+    setSyncStatus("기준 월을 먼저 선택해 주세요.", "error");
+    return;
+  }
+
+  try {
+    setSyncStatus(`${yearMonth} 거래 내역을 카드사 API에서 동기화하는 중입니다.`, "loading");
+    elements.syncTransactions.disabled = true;
+
+    const result = await requestJson(
+      "/api/sync/transactions",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ yearMonth }),
+      },
+      "카드사 거래 동기화에 실패했습니다.",
+    );
+
+    await refreshOverviewForCurrentMonth(false);
+    setSyncStatus(
+      `${result.syncedCardIds.length}개 카드에서 ${result.fetchedCount}건의 거래를 동기화했습니다.`,
+      "success",
+    );
+  } catch (error) {
+    console.error(error);
+    setSyncStatus(error.message || "카드사 거래 동기화에 실패했습니다.", "error");
+  } finally {
+    elements.syncTransactions.disabled = false;
+  }
+}
+
 async function refreshOverviewForCurrentMonth(showCatalogSuccessMessage) {
   const yearMonth = elements.spendingMonth.value;
   if (!yearMonth) {
@@ -509,8 +559,8 @@ async function replacePolicy() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          tiers: parseEditorArray(elements.policyTiersEditor.value, "tiers"),
-          benefitRules: parseEditorArray(elements.policyRulesEditor.value, "benefitRules"),
+          tiers: readTiersFromForm(),
+          benefitRules: readRulesFromForm(),
         }),
       },
       "카드 정책을 저장하지 못했습니다.",
@@ -533,8 +583,8 @@ async function patchPolicy(fieldName) {
 
   try {
     const patchBody = fieldName === "tiers"
-      ? { tiers: parseEditorArray(elements.policyTiersEditor.value, "tiers") }
-      : { benefitRules: parseEditorArray(elements.policyRulesEditor.value, "benefitRules") };
+      ? { tiers: readTiersFromForm() }
+      : { benefitRules: readRulesFromForm() };
     const successLabel = fieldName === "tiers" ? "실적 구간" : "혜택 규칙";
 
     setPolicyStatus(`${successLabel}만 PATCH 적용하는 중입니다.`, "loading");
@@ -561,24 +611,373 @@ async function patchPolicy(fieldName) {
 function renderPolicyEditor(policy) {
   elements.policyTierCount.textContent = `${policy.tiers.length} tiers`;
   elements.policyRuleCount.textContent = `${policy.benefitRules.length} rules`;
-  elements.policyTiersEditor.value = formatJson(policy.tiers);
-  elements.policyRulesEditor.value = formatJson(policy.benefitRules);
+
+  elements.tierFormList.innerHTML = "";
+  if (policy.tiers.length === 0) {
+    elements.tierFormList.innerHTML = '<div class="tier-empty">실적 구간이 없습니다. + 구간 추가 버튼으로 추가하세요.</div>';
+  } else {
+    policy.tiers.forEach((tier) => {
+      elements.tierFormList.append(createTierRow(tier));
+    });
+  }
+
+  elements.ruleFormList.innerHTML = "";
+  if (policy.benefitRules.length === 0) {
+    elements.ruleFormList.innerHTML = '<div class="rule-empty">혜택 규칙이 없습니다. + 규칙 추가 버튼으로 추가하세요.</div>';
+  } else {
+    policy.benefitRules.forEach((rule) => {
+      elements.ruleFormList.append(createRuleCard(rule, false));
+    });
+  }
 }
 
 function clearPolicyEditor() {
   elements.policyTierCount.textContent = "-";
   elements.policyRuleCount.textContent = "-";
-  elements.policyTiersEditor.value = "[]";
-  elements.policyRulesEditor.value = "[]";
+  elements.tierFormList.innerHTML = "";
+  elements.ruleFormList.innerHTML = "";
 }
 
 function setPolicyEditorEnabled(enabled) {
   elements.loadPolicy.disabled = !enabled;
-  elements.policyTiersEditor.disabled = !enabled;
-  elements.policyRulesEditor.disabled = !enabled;
+  elements.addTierButton.disabled = !enabled;
+  elements.addRuleButton.disabled = !enabled;
   elements.patchPolicyTiers.disabled = !enabled;
   elements.patchPolicyRules.disabled = !enabled;
   elements.replacePolicy.disabled = !enabled;
+}
+
+function createTierRow(tier = {}) {
+  const row = document.createElement("div");
+  row.className = "tier-row";
+
+  const codeInput = document.createElement("input");
+  codeInput.type = "text";
+  codeInput.className = "tier-code";
+  codeInput.placeholder = "구간 코드";
+  codeInput.value = tier.code || "";
+
+  const amountInput = document.createElement("input");
+  amountInput.type = "number";
+  amountInput.className = "tier-amount";
+  amountInput.placeholder = "목표 금액";
+  amountInput.min = "0";
+  amountInput.step = "10000";
+  amountInput.value = tier.targetAmount ?? 0;
+
+  const summaryInput = document.createElement("input");
+  summaryInput.type = "text";
+  summaryInput.className = "tier-summary";
+  summaryInput.placeholder = "혜택 요약";
+  summaryInput.value = tier.benefitSummary || "";
+
+  const removeButton = document.createElement("button");
+  removeButton.type = "button";
+  removeButton.className = "ghost-button";
+  removeButton.textContent = "삭제";
+  removeButton.addEventListener("click", () => {
+    row.remove();
+    if (elements.tierFormList.children.length === 0) {
+      elements.tierFormList.innerHTML = '<div class="tier-empty">실적 구간이 없습니다. + 구간 추가 버튼으로 추가하세요.</div>';
+    }
+  });
+
+  row.append(codeInput, amountInput, summaryInput, removeButton);
+
+  const emptyMsg = elements.tierFormList.querySelector(".tier-empty");
+  if (emptyMsg) emptyMsg.remove();
+
+  return row;
+}
+
+function createRuleCard(rule = {}, expanded = false) {
+  const card = document.createElement("div");
+  card.className = "rule-card";
+
+  const isPercent = (rule.benefitType || "RATE_PERCENT") === "RATE_PERCENT";
+
+  const header = document.createElement("div");
+  header.className = "rule-header";
+
+  const headerInfo = document.createElement("div");
+  headerInfo.className = "rule-header-info";
+
+  const headerId = document.createElement("strong");
+  headerId.className = "rule-header-id";
+  headerId.textContent = rule.ruleId || "새 규칙";
+
+  const headerType = document.createElement("span");
+  headerType.className = "rule-header-type";
+  headerType.textContent = rule.benefitType || "RATE_PERCENT";
+
+  const headerSummary = document.createElement("span");
+  headerSummary.className = "rule-header-summary";
+  headerSummary.textContent = rule.benefitSummary || "";
+
+  headerInfo.append(headerId, headerType, headerSummary);
+
+  const headerActions = document.createElement("div");
+  headerActions.className = "rule-header-actions";
+
+  const toggleBtn = document.createElement("button");
+  toggleBtn.type = "button";
+  toggleBtn.className = "ghost-button";
+  toggleBtn.textContent = expanded ? "접기" : "펼치기";
+
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.className = "ghost-button";
+  removeBtn.textContent = "삭제";
+
+  headerActions.append(toggleBtn, removeBtn);
+  header.append(headerInfo, headerActions);
+
+  const body = document.createElement("div");
+  body.className = "rule-body" + (expanded ? "" : " hidden");
+
+  body.innerHTML = buildRuleBodyHtml(rule, isPercent);
+
+  card.append(header, body);
+
+  // Set values via DOM to avoid XSS
+  setRuleFieldValues(body, rule, isPercent);
+
+  // Event: toggle
+  const toggleBody = () => {
+    const isHidden = body.classList.toggle("hidden");
+    toggleBtn.textContent = isHidden ? "펼치기" : "접기";
+  };
+  header.addEventListener("click", (e) => {
+    if (e.target.closest("button")) return;
+    toggleBody();
+  });
+  toggleBtn.addEventListener("click", toggleBody);
+
+  // Event: remove
+  removeBtn.addEventListener("click", () => {
+    card.remove();
+    if (elements.ruleFormList.children.length === 0) {
+      elements.ruleFormList.innerHTML = '<div class="rule-empty">혜택 규칙이 없습니다. + 규칙 추가 버튼으로 추가하세요.</div>';
+    }
+  });
+
+  // Event: type toggle
+  const typeSelect = body.querySelector(".rule-type");
+  typeSelect.addEventListener("change", () => {
+    const isRate = typeSelect.value === "RATE_PERCENT";
+    body.querySelector(".rate-field").classList.toggle("hidden", !isRate);
+    body.querySelector(".fixed-field").classList.toggle("hidden", isRate);
+    headerType.textContent = typeSelect.value;
+  });
+
+  // Event: sync header
+  const ruleIdInput = body.querySelector(".rule-id");
+  ruleIdInput.addEventListener("input", () => {
+    headerId.textContent = ruleIdInput.value || "새 규칙";
+  });
+  body.querySelector(".rule-summary").addEventListener("input", (e) => {
+    headerSummary.textContent = e.target.value;
+  });
+
+  // Monthly cap tiers
+  const monthlyCapList = body.querySelector(".monthly-cap-list");
+  body.querySelector(".add-cap-tier").addEventListener("click", () => {
+    monthlyCapList.append(createCapTierRow());
+  });
+  (rule.monthlyCapTiers || []).forEach((ct) => {
+    monthlyCapList.append(createCapTierRow(ct));
+  });
+
+  // Shared monthly cap tiers
+  const sharedCapList = body.querySelector(".shared-cap-list");
+  body.querySelector(".add-shared-cap-tier").addEventListener("click", () => {
+    sharedCapList.append(createCapTierRow());
+  });
+  (rule.sharedMonthlyCapTiers || []).forEach((ct) => {
+    sharedCapList.append(createCapTierRow(ct));
+  });
+
+  const emptyMsg = elements.ruleFormList.querySelector(".rule-empty");
+  if (emptyMsg) emptyMsg.remove();
+
+  return card;
+}
+
+function buildRuleBodyHtml(rule, isPercent) {
+  return `
+    <fieldset class="rule-fieldset">
+      <legend>기본 정보</legend>
+      <div class="rule-fields">
+        <label><span>규칙 ID</span><input type="text" class="rule-id" placeholder="고유 식별자"></label>
+        <label class="wide"><span>혜택 요약</span><input type="text" class="rule-summary" placeholder="혜택 설명"></label>
+        <label><span>혜택 유형</span>
+          <select class="rule-type">
+            <option value="RATE_PERCENT"${isPercent ? " selected" : ""}>비율 할인 (RATE_PERCENT)</option>
+            <option value="FIXED_AMOUNT"${!isPercent ? " selected" : ""}>정액 할인 (FIXED_AMOUNT)</option>
+          </select>
+        </label>
+      </div>
+    </fieldset>
+    <fieldset class="rule-fieldset">
+      <legend>혜택 금액</legend>
+      <div class="rule-fields">
+        <label class="rate-field${isPercent ? "" : " hidden"}"><span>할인율 (basis points, 100 = 1%)</span><input type="number" class="rule-rate" min="0" max="10000"></label>
+        <label class="fixed-field${!isPercent ? "" : " hidden"}"><span>정액 할인 (원)</span><input type="number" class="rule-fixed" min="0"></label>
+      </div>
+    </fieldset>
+    <fieldset class="rule-fieldset">
+      <legend>매칭 조건</legend>
+      <div class="rule-fields">
+        <label><span>가맹점 카테고리</span><input type="text" class="rule-categories" placeholder="쉼표 구분 (비우면 ANY)"></label>
+        <label><span>가맹점 키워드</span><input type="text" class="rule-keywords" placeholder="쉼표 구분"></label>
+        <label><span>필수 태그</span><input type="text" class="rule-required-tags" placeholder="쉼표 구분"></label>
+        <label><span>제외 태그</span><input type="text" class="rule-excluded-tags" placeholder="쉼표 구분"></label>
+      </div>
+    </fieldset>
+    <fieldset class="rule-fieldset">
+      <legend>자격 조건</legend>
+      <div class="rule-fields">
+        <label><span>최소 결제 금액</span><input type="number" class="rule-min-payment" min="0"></label>
+        <label><span>건당 혜택 한도</span><input type="number" class="rule-per-tx-cap" min="0"></label>
+        <label><span>전월 최소 실적</span><input type="number" class="rule-min-prev-month" min="0"></label>
+      </div>
+    </fieldset>
+    <fieldset class="rule-fieldset">
+      <legend>한도 설정</legend>
+      <div class="rule-fields">
+        <label><span>월간 혜택 횟수 (0=무제한)</span><input type="number" class="rule-monthly-count" min="0"></label>
+        <label><span>연간 혜택 한도 (원)</span><input type="number" class="rule-yearly-cap" min="0"></label>
+        <label><span>연간 혜택 횟수 (0=무제한)</span><input type="number" class="rule-yearly-count" min="0"></label>
+      </div>
+      <div class="cap-tiers-section">
+        <div class="subsection-header">
+          <span class="field-hint">월간 혜택 한도 (전월 실적별)</span>
+          <button type="button" class="ghost-button add-cap-tier">+ 구간</button>
+        </div>
+        <div class="cap-tier-list monthly-cap-list"></div>
+      </div>
+    </fieldset>
+    <fieldset class="rule-fieldset">
+      <legend>그룹 설정</legend>
+      <div class="rule-fields">
+        <label><span>배타적 그룹 ID</span><input type="text" class="rule-exclusive-group" placeholder="비우면 ruleId 사용"></label>
+        <label><span>공유 한도 그룹 ID</span><input type="text" class="rule-shared-group" placeholder="비우면 그룹 없음"></label>
+        <label><span>공유 연간 한도 (원)</span><input type="number" class="rule-shared-yearly-cap" min="0"></label>
+      </div>
+      <div class="cap-tiers-section">
+        <div class="subsection-header">
+          <span class="field-hint">공유 월간 한도 (전월 실적별)</span>
+          <button type="button" class="ghost-button add-shared-cap-tier">+ 구간</button>
+        </div>
+        <div class="cap-tier-list shared-cap-list"></div>
+      </div>
+    </fieldset>`;
+}
+
+function setRuleFieldValues(body, rule, isPercent) {
+  body.querySelector(".rule-id").value = rule.ruleId || "";
+  body.querySelector(".rule-summary").value = rule.benefitSummary || "";
+  body.querySelector(".rule-rate").value = rule.rateBasisPoints ?? 0;
+  body.querySelector(".rule-fixed").value = rule.fixedBenefitAmount ?? 0;
+  body.querySelector(".rule-categories").value = (rule.merchantCategories || []).join(", ");
+  body.querySelector(".rule-keywords").value = (rule.merchantKeywords || []).join(", ");
+  body.querySelector(".rule-required-tags").value = (rule.requiredTags || []).join(", ");
+  body.querySelector(".rule-excluded-tags").value = (rule.excludedTags || []).join(", ");
+  body.querySelector(".rule-min-payment").value = rule.minimumPaymentAmount ?? 0;
+  body.querySelector(".rule-per-tx-cap").value = rule.perTransactionCap ?? 0;
+  body.querySelector(".rule-min-prev-month").value = rule.minimumPreviousMonthSpent ?? 0;
+  body.querySelector(".rule-monthly-count").value = rule.monthlyCountLimit ?? 0;
+  body.querySelector(".rule-yearly-cap").value = rule.yearlyBenefitCap ?? 0;
+  body.querySelector(".rule-yearly-count").value = rule.yearlyCountLimit ?? 0;
+  body.querySelector(".rule-exclusive-group").value = rule.exclusiveGroupId || "";
+  body.querySelector(".rule-shared-group").value = rule.sharedLimitGroupId || "";
+  body.querySelector(".rule-shared-yearly-cap").value = rule.sharedYearlyBenefitCap ?? 0;
+}
+
+function createCapTierRow(capTier = {}) {
+  const row = document.createElement("div");
+  row.className = "cap-tier-row";
+
+  const minInput = document.createElement("input");
+  minInput.type = "number";
+  minInput.className = "cap-min-spent";
+  minInput.placeholder = "전월 최소 실적";
+  minInput.min = "0";
+  minInput.value = capTier.minimumPreviousMonthSpent ?? 0;
+
+  const capInput = document.createElement("input");
+  capInput.type = "number";
+  capInput.className = "cap-amount";
+  capInput.placeholder = "월간 한도";
+  capInput.min = "0";
+  capInput.value = capTier.monthlyCap ?? 0;
+
+  const removeButton = document.createElement("button");
+  removeButton.type = "button";
+  removeButton.className = "ghost-button";
+  removeButton.textContent = "삭제";
+  removeButton.addEventListener("click", () => row.remove());
+
+  row.append(minInput, capInput, removeButton);
+  return row;
+}
+
+function readTiersFromForm() {
+  return Array.from(elements.tierFormList.querySelectorAll(".tier-row")).map((row) => ({
+    code: row.querySelector(".tier-code").value.trim(),
+    targetAmount: Number(row.querySelector(".tier-amount").value) || 0,
+    benefitSummary: row.querySelector(".tier-summary").value.trim(),
+  }));
+}
+
+function readRulesFromForm() {
+  return Array.from(elements.ruleFormList.querySelectorAll(".rule-card")).map((card) => {
+    const body = card.querySelector(".rule-body");
+    const type = body.querySelector(".rule-type").value;
+
+    const rule = {
+      ruleId: body.querySelector(".rule-id").value.trim(),
+      benefitSummary: body.querySelector(".rule-summary").value.trim(),
+      benefitType: type,
+      merchantCategories: parseTags(body.querySelector(".rule-categories").value),
+      merchantKeywords: parseTags(body.querySelector(".rule-keywords").value),
+      requiredTags: parseTags(body.querySelector(".rule-required-tags").value),
+      excludedTags: parseTags(body.querySelector(".rule-excluded-tags").value),
+      minimumPaymentAmount: Number(body.querySelector(".rule-min-payment").value) || 0,
+      perTransactionCap: Number(body.querySelector(".rule-per-tx-cap").value) || 0,
+      minimumPreviousMonthSpent: Number(body.querySelector(".rule-min-prev-month").value) || 0,
+      monthlyCountLimit: Number(body.querySelector(".rule-monthly-count").value) || 0,
+      yearlyBenefitCap: Number(body.querySelector(".rule-yearly-cap").value) || 0,
+      yearlyCountLimit: Number(body.querySelector(".rule-yearly-count").value) || 0,
+      exclusiveGroupId: body.querySelector(".rule-exclusive-group").value.trim() || null,
+      sharedLimitGroupId: body.querySelector(".rule-shared-group").value.trim() || null,
+      sharedYearlyBenefitCap: Number(body.querySelector(".rule-shared-yearly-cap").value) || 0,
+    };
+
+    if (type === "RATE_PERCENT") {
+      rule.rateBasisPoints = Number(body.querySelector(".rule-rate").value) || 0;
+    } else {
+      rule.fixedBenefitAmount = Number(body.querySelector(".rule-fixed").value) || 0;
+    }
+
+    const monthlyCapRows = body.querySelectorAll(".monthly-cap-list .cap-tier-row");
+    if (monthlyCapRows.length > 0) {
+      rule.monthlyCapTiers = Array.from(monthlyCapRows).map((row) => ({
+        minimumPreviousMonthSpent: Number(row.querySelector(".cap-min-spent").value) || 0,
+        monthlyCap: Number(row.querySelector(".cap-amount").value) || 0,
+      }));
+    }
+
+    const sharedCapRows = body.querySelectorAll(".shared-cap-list .cap-tier-row");
+    if (sharedCapRows.length > 0) {
+      rule.sharedMonthlyCapTiers = Array.from(sharedCapRows).map((row) => ({
+        minimumPreviousMonthSpent: Number(row.querySelector(".cap-min-spent").value) || 0,
+        monthlyCap: Number(row.querySelector(".cap-amount").value) || 0,
+      }));
+    }
+
+    return rule;
+  });
 }
 
 function resetRegisterForm() {
@@ -599,6 +998,11 @@ function setResultState(message, type) {
 function setCatalogStatus(message, type) {
   elements.catalogStatus.textContent = message;
   elements.catalogStatus.className = `inline-status ${type}`;
+}
+
+function setSyncStatus(message, type) {
+  elements.syncStatus.textContent = message;
+  elements.syncStatus.className = `inline-status ${type}`;
 }
 
 function setPolicyStatus(message, type) {
@@ -630,20 +1034,6 @@ function parseTags(rawValue) {
     .filter(Boolean);
 }
 
-function parseEditorArray(rawValue, label) {
-  try {
-    const parsed = JSON.parse(rawValue);
-    if (!Array.isArray(parsed)) {
-      throw new Error(`${label} 편집 값은 JSON 배열이어야 합니다.`);
-    }
-    return parsed;
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      throw new Error(`${label} 편집 값의 JSON 형식이 올바르지 않습니다.`);
-    }
-    throw error;
-  }
-}
 
 function getSelectedScenario() {
   return state.scenarios.find((scenario) => scenario.id === state.selectedScenarioId) ?? null;
@@ -653,9 +1043,6 @@ function formatWon(amount) {
   return `${Number(amount).toLocaleString("ko-KR")}원`;
 }
 
-function formatJson(value) {
-  return JSON.stringify(value, null, 2);
-}
 
 async function requestJson(url, options = {}, fallbackMessage = "요청 처리에 실패했습니다.") {
   const response = await fetch(url, options);

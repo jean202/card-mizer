@@ -7,7 +7,9 @@ import com.jean202.cardmizer.api.normalization.MerchantNormalizationRulesLoader;
 import com.jean202.cardmizer.api.normalization.MerchantNormalizationRules;
 import com.jean202.cardmizer.api.normalization.NormalizedTransaction;
 import com.jean202.cardmizer.common.Money;
+import com.jean202.cardmizer.core.application.GetCardsService;
 import com.jean202.cardmizer.core.application.GetCardPerformancePolicyService;
+import com.jean202.cardmizer.core.application.SyncCardTransactionsService;
 import com.jean202.cardmizer.core.application.GetPerformanceOverviewService;
 import com.jean202.cardmizer.core.application.RecommendCardService;
 import com.jean202.cardmizer.core.application.ReplaceCardPerformancePolicyService;
@@ -16,12 +18,14 @@ import com.jean202.cardmizer.core.application.RecordSpendingService;
 import com.jean202.cardmizer.core.application.UpdatePriorityService;
 import com.jean202.cardmizer.core.domain.CardId;
 import com.jean202.cardmizer.core.domain.SpendingRecord;
+import com.jean202.cardmizer.core.port.in.GetCardsUseCase;
 import com.jean202.cardmizer.core.port.in.GetCardPerformancePolicyUseCase;
 import com.jean202.cardmizer.core.port.in.GetPerformanceOverviewUseCase;
 import com.jean202.cardmizer.core.port.in.RecommendCardUseCase;
 import com.jean202.cardmizer.core.port.in.ReplaceCardPerformancePolicyUseCase;
 import com.jean202.cardmizer.core.port.in.RecordSpendingUseCase;
 import com.jean202.cardmizer.core.port.in.RegisterCardUseCase;
+import com.jean202.cardmizer.core.port.in.SyncCardTransactionsUseCase;
 import com.jean202.cardmizer.core.port.in.UpdatePriorityUseCase;
 import com.jean202.cardmizer.core.port.out.LoadCardCatalogPort;
 import com.jean202.cardmizer.core.port.out.LoadCardPerformancePoliciesPort;
@@ -29,6 +33,7 @@ import com.jean202.cardmizer.core.port.out.LoadSpendingRecordsPort;
 import com.jean202.cardmizer.core.port.out.ReplaceCardPerformancePolicyPort;
 import com.jean202.cardmizer.core.port.out.SaveCardPerformancePolicyPort;
 import com.jean202.cardmizer.core.port.out.SaveCardPort;
+import com.jean202.cardmizer.core.port.out.FetchCardTransactionsPort;
 import com.jean202.cardmizer.core.port.out.SaveSpendingRecordPort;
 import com.jean202.cardmizer.core.port.out.UpdateCardPriorityPort;
 import com.jean202.cardmizer.infra.persistence.InMemoryCardCatalogAdapter;
@@ -54,6 +59,11 @@ public class ApplicationConfiguration {
     @Bean
     public RecommendationDemoScenarios recommendationDemoScenarios() {
         return new RecommendationDemoScenariosLoader().loadDefault();
+    }
+
+    @Bean
+    public GetCardsUseCase getCardsUseCase(LoadCardCatalogPort loadCardCatalogPort) {
+        return new GetCardsService(loadCardCatalogPort);
     }
 
     @Bean
@@ -114,6 +124,19 @@ public class ApplicationConfiguration {
                 loadCardCatalogPort,
                 loadCardPerformancePoliciesPort,
                 loadSpendingRecordsPort
+        );
+    }
+
+    @Bean
+    public SyncCardTransactionsUseCase syncCardTransactionsUseCase(
+            LoadCardCatalogPort loadCardCatalogPort,
+            FetchCardTransactionsPort fetchCardTransactionsPort,
+            SaveSpendingRecordPort saveSpendingRecordPort
+    ) {
+        return new SyncCardTransactionsService(
+                loadCardCatalogPort,
+                fetchCardTransactionsPort,
+                saveSpendingRecordPort
         );
     }
 

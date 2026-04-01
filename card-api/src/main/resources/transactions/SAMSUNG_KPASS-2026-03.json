@@ -1,0 +1,14 @@
+[
+  {"date": "2026-03-02", "store": "서울교통공사", "category": "대중교통", "won": 1250, "card": "SAMSUNG_KPASS", "tags": []},
+  {"date": "2026-03-03", "store": "경기도버스", "category": "대중교통", "won": 1200, "card": "SAMSUNG_KPASS", "tags": []},
+  {"date": "2026-03-05", "store": "CU 강남역점", "category": "편의점", "won": 3800, "card": "SAMSUNG_KPASS", "tags": []},
+  {"date": "2026-03-07", "store": "서울교통공사", "category": "대중교통", "won": 1250, "card": "SAMSUNG_KPASS", "tags": []},
+  {"date": "2026-03-09", "store": "인천교통공사", "category": "대중교통", "won": 1350, "card": "SAMSUNG_KPASS", "tags": []},
+  {"date": "2026-03-11", "store": "GS25 역삼점", "category": "편의점", "won": 4200, "card": "SAMSUNG_KPASS", "tags": []},
+  {"date": "2026-03-14", "store": "경기도버스", "category": "대중교통", "won": 1200, "card": "SAMSUNG_KPASS", "tags": []},
+  {"date": "2026-03-16", "store": "서울교통공사", "category": "대중교통", "won": 1250, "card": "SAMSUNG_KPASS", "tags": []},
+  {"date": "2026-03-19", "store": "세븐일레븐 삼성점", "category": "편의점", "won": 2900, "card": "SAMSUNG_KPASS", "tags": []},
+  {"date": "2026-03-21", "store": "서울교통공사", "category": "대중교통", "won": 1250, "card": "SAMSUNG_KPASS", "tags": []},
+  {"date": "2026-03-24", "store": "다이소 강남점", "category": "생활용품", "won": 6500, "card": "SAMSUNG_KPASS", "tags": []},
+  {"date": "2026-03-27", "store": "경기도버스", "category": "대중교통", "won": 1200, "card": "SAMSUNG_KPASS", "tags": []}
+]

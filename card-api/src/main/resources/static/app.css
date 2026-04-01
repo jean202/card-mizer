@@ -611,22 +611,173 @@ textarea {
     gap: 14px;
 }
 
-.policy-grid {
+
+/* Policy Form */
+.tier-form-list,
+.rule-form-list {
     display: grid;
-    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
-    gap: 16px;
+    gap: 10px;
 }
 
-.json-editor {
-    min-height: 260px;
-    resize: vertical;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+.tier-row {
+    display: grid;
+    grid-template-columns: minmax(100px, 0.8fr) minmax(100px, 1fr) minmax(140px, 2fr) auto;
+    gap: 8px;
+    align-items: center;
+}
+
+.tier-row input,
+.rule-fields input,
+.rule-fields select,
+.cap-tier-row input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.88rem;
+}
+
+.tier-row input:focus,
+.rule-fields input:focus,
+.rule-fields select:focus,
+.cap-tier-row input:focus {
+    border-color: rgba(15, 118, 110, 0.46);
+    outline: 3px solid rgba(15, 118, 110, 0.12);
+}
+
+.rule-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.48);
+    overflow: hidden;
+}
+
+.rule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 180ms ease;
+}
+
+.rule-header:hover {
+    background: rgba(15, 118, 110, 0.04);
+}
+
+.rule-header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+}
+
+.rule-header-id {
+    font-size: 0.92rem;
+    white-space: nowrap;
+}
+
+.rule-header-type {
+    display: inline-flex;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(23, 49, 60, 0.08);
+    color: var(--primary-strong);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+.rule-header-summary {
+    color: var(--muted);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rule-header-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.rule-body {
+    padding: 0 16px 16px;
+    display: grid;
+    gap: 14px;
+}
+
+.rule-fieldset {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin: 0;
+}
+
+.rule-fieldset legend {
+    padding: 0 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--primary-strong);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.rule-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.rule-fields label {
+    display: grid;
+    gap: 5px;
+}
+
+.rule-fields label span {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.rule-fields label.wide {
+    grid-column: 1 / -1;
+}
+
+.cap-tiers-section {
+    margin-top: 10px;
+}
+
+.cap-tier-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.cap-tier-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    align-items: center;
+}
+
+.tier-empty,
+.rule-empty {
+    padding: 16px;
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--line-strong);
+    background: rgba(255, 255, 255, 0.4);
+    color: var(--muted);
+    text-align: center;
     font-size: 0.9rem;
-    line-height: 1.6;
-}
-
-.rules-editor {
-    min-height: 340px;
 }
 
 .empty-state {
@@ -634,6 +785,19 @@ textarea {
     border-radius: var(--radius-md);
     border: 1px dashed var(--line-strong);
     background: rgba(255, 255, 255, 0.4);
+}
+
+.sync-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.sync-toolbar .inline-status {
+    margin-bottom: 0;
+    flex: 1;
 }
 
 .overview-grid {
@@ -722,7 +886,6 @@ textarea {
     .scenario-summary,
     .request-form,
     .policy-summary,
-    .policy-grid,
     .overview-stats,
     .overview-grid {
         grid-template-columns: 1fr;
@@ -742,5 +905,21 @@ textarea {
 
     .priority-actions {
         justify-content: flex-start;
+    }
+
+    .tier-row {
+        grid-template-columns: 1fr;
+    }
+
+    .rule-header-info {
+        flex-wrap: wrap;
+    }
+
+    .rule-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .cap-tier-row {
+        grid-template-columns: 1fr;
     }
 }

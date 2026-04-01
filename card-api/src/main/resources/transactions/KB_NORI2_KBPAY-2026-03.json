@@ -1,0 +1,12 @@
+[
+  {"date": "2026-03-01", "store": "스타벅스 강남점", "category": "카페", "won": 5500, "card": "KB_NORI2_KBPAY", "tags": ["KB_PAY"]},
+  {"date": "2026-03-04", "store": "CGV 왕십리", "category": "영화", "won": 14000, "card": "KB_NORI2_KBPAY", "tags": ["KB_PAY"]},
+  {"date": "2026-03-06", "store": "이디야 서초점", "category": "카페", "won": 4300, "card": "KB_NORI2_KBPAY", "tags": ["KB_PAY"]},
+  {"date": "2026-03-09", "store": "쿠팡", "category": "온라인쇼핑", "won": 32000, "card": "KB_NORI2_KBPAY", "tags": ["KB_PAY", "ONLINE"]},
+  {"date": "2026-03-12", "store": "투썸플레이스 선릉점", "category": "카페", "won": 6800, "card": "KB_NORI2_KBPAY", "tags": ["KB_PAY"]},
+  {"date": "2026-03-15", "store": "올리브영 강남점", "category": "드럭스토어", "won": 18500, "card": "KB_NORI2_KBPAY", "tags": ["KB_PAY"]},
+  {"date": "2026-03-17", "store": "메가박스 코엑스", "category": "영화", "won": 15000, "card": "KB_NORI2_KBPAY", "tags": ["KB_PAY"]},
+  {"date": "2026-03-20", "store": "스타벅스 역삼점", "category": "카페", "won": 6200, "card": "KB_NORI2_KBPAY", "tags": ["KB_PAY"]},
+  {"date": "2026-03-23", "store": "배스킨라빈스 강남점", "category": "디저트", "won": 8900, "card": "KB_NORI2_KBPAY", "tags": ["KB_PAY"]},
+  {"date": "2026-03-26", "store": "GS25 역삼점", "category": "편의점", "won": 3500, "card": "KB_NORI2_KBPAY", "tags": ["KB_PAY"]}
+]

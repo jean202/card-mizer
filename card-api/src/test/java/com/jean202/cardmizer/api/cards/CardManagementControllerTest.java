@@ -13,7 +13,7 @@ class CardManagementControllerTest {
     @Test
     void convertsRegisterRequestToCardDomainModel() {
         CapturingRegisterCardUseCase registerCardUseCase = new CapturingRegisterCardUseCase();
-        CardManagementController controller = new CardManagementController(registerCardUseCase, priorityStrategy -> {
+        CardManagementController controller = new CardManagementController(List::of, registerCardUseCase, priorityStrategy -> {
         });
 
         CardManagementController.RegisterCardResponse response = controller.register(
@@ -35,7 +35,7 @@ class CardManagementControllerTest {
     @Test
     void convertsPriorityRequestToOrderedCardIds() {
         CapturingUpdatePriorityUseCase updatePriorityUseCase = new CapturingUpdatePriorityUseCase();
-        CardManagementController controller = new CardManagementController(card -> {
+        CardManagementController controller = new CardManagementController(List::of, card -> {
         }, updatePriorityUseCase);
 
         controller.updatePriorities(new CardManagementController.UpdatePrioritiesRequest(List.of(

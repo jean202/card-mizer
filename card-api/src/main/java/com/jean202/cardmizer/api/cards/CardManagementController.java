@@ -4,6 +4,7 @@ import com.jean202.cardmizer.core.domain.Card;
 import com.jean202.cardmizer.core.domain.CardId;
 import com.jean202.cardmizer.core.domain.CardType;
 import com.jean202.cardmizer.core.domain.PriorityStrategy;
+import com.jean202.cardmizer.core.port.in.GetCardsUseCase;
 import com.jean202.cardmizer.core.port.in.RegisterCardUseCase;
 import com.jean202.cardmizer.core.port.in.UpdatePriorityUseCase;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import jakarta.validation.constraints.Positive;
 import java.util.List;
 import java.util.Locale;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,15 +26,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/cards")
 public class CardManagementController {
+    private final GetCardsUseCase getCardsUseCase;
     private final RegisterCardUseCase registerCardUseCase;
     private final UpdatePriorityUseCase updatePriorityUseCase;
 
     public CardManagementController(
+            GetCardsUseCase getCardsUseCase,
             RegisterCardUseCase registerCardUseCase,
             UpdatePriorityUseCase updatePriorityUseCase
     ) {
+        this.getCardsUseCase = getCardsUseCase;
         this.registerCardUseCase = registerCardUseCase;
         this.updatePriorityUseCase = updatePriorityUseCase;
+    }
+
+    @GetMapping
+    public List<CardResponse> getAll() {
+        return getCardsUseCase.getAll().stream()
+                .map(CardResponse::from)
+                .toList();
     }
 
     @PostMapping
@@ -95,6 +107,24 @@ public class CardManagementController {
             return new RegisterCardResponse(
                     card.id().value(),
                     card.displayName(),
+                    card.cardType().name(),
+                    card.priority()
+            );
+        }
+    }
+
+    public record CardResponse(
+            String cardId,
+            String issuerName,
+            String productName,
+            String cardType,
+            int priority
+    ) {
+        static CardResponse from(Card card) {
+            return new CardResponse(
+                    card.id().value(),
+                    card.issuerName(),
+                    card.productName(),
                     card.cardType().name(),
                     card.priority()
             );

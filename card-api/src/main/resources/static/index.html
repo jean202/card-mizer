@@ -131,6 +131,10 @@
                     <p class="panel-kicker">Performance Overview</p>
                     <h2>선택한 월의 실적 현황</h2>
                 </div>
+                <div class="sync-toolbar">
+                    <div id="sync-status" class="inline-status">카드사 API에서 거래 내역을 동기화할 수 있습니다.</div>
+                    <button id="sync-transactions" type="button" class="secondary-button">카드사 거래 동기화</button>
+                </div>
                 <div id="overview-grid" class="overview-grid"></div>
             </section>
 
@@ -226,31 +230,27 @@
                         </div>
                     </div>
 
-                    <div class="policy-grid">
-                        <section class="editor-card">
-                            <div class="subsection-header">
-                                <h4>Tiers JSON</h4>
-                                <span class="summary-label">실적 구간 배열</span>
-                            </div>
-                            <p class="field-hint">`[{ "code", "targetAmount", "benefitSummary" }]` 형식의 JSON 배열을 넣습니다.</p>
-                            <textarea id="policy-tiers-editor" class="json-editor" spellcheck="false"></textarea>
-                            <div class="action-row">
-                                <button id="patch-policy-tiers" type="button" class="secondary-button">tiers만 PATCH</button>
-                            </div>
-                        </section>
+                    <section class="editor-card">
+                        <div class="subsection-header">
+                            <h4>실적 구간</h4>
+                            <button id="add-tier" type="button" class="ghost-button">+ 구간 추가</button>
+                        </div>
+                        <div id="tier-form-list" class="tier-form-list"></div>
+                        <div class="action-row">
+                            <button id="patch-policy-tiers" type="button" class="secondary-button">tiers만 PATCH</button>
+                        </div>
+                    </section>
 
-                        <section class="editor-card">
-                            <div class="subsection-header">
-                                <h4>Benefit Rules JSON</h4>
-                                <span class="summary-label">혜택 규칙 배열</span>
-                            </div>
-                            <p class="field-hint">`RATE_PERCENT` 또는 `FIXED_AMOUNT` 규칙 배열을 그대로 편집합니다.</p>
-                            <textarea id="policy-rules-editor" class="json-editor rules-editor" spellcheck="false"></textarea>
-                            <div class="action-row">
-                                <button id="patch-policy-rules" type="button" class="secondary-button">benefitRules만 PATCH</button>
-                            </div>
-                        </section>
-                    </div>
+                    <section class="editor-card">
+                        <div class="subsection-header">
+                            <h4>혜택 규칙</h4>
+                            <button id="add-rule" type="button" class="ghost-button">+ 규칙 추가</button>
+                        </div>
+                        <div id="rule-form-list" class="rule-form-list"></div>
+                        <div class="action-row">
+                            <button id="patch-policy-rules" type="button" class="secondary-button">benefitRules만 PATCH</button>
+                        </div>
+                    </section>
 
                     <div class="action-row">
                         <button id="replace-policy" type="button" class="primary-button">전체 정책 교체 (PUT)</button>

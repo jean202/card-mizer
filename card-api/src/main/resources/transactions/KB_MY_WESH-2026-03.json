@@ -1,0 +1,10 @@
+[
+  {"date": "2026-03-01", "store": "넷플릭스", "category": "OTT", "won": 17000, "card": "KB_MY_WESH", "tags": ["ONLINE", "SUBSCRIPTION"]},
+  {"date": "2026-03-01", "store": "웨이브", "category": "OTT", "won": 7900, "card": "KB_MY_WESH", "tags": ["ONLINE", "SUBSCRIPTION"]},
+  {"date": "2026-03-01", "store": "멜론", "category": "음악", "won": 10900, "card": "KB_MY_WESH", "tags": ["ONLINE", "SUBSCRIPTION"]},
+  {"date": "2026-03-08", "store": "롯데월드", "category": "놀이공원", "won": 52000, "card": "KB_MY_WESH", "tags": []},
+  {"date": "2026-03-13", "store": "CGV 용산", "category": "영화", "won": 28000, "card": "KB_MY_WESH", "tags": []},
+  {"date": "2026-03-18", "store": "배달의민족", "category": "배달", "won": 21500, "card": "KB_MY_WESH", "tags": ["ONLINE"]},
+  {"date": "2026-03-22", "store": "스타필드 코엑스", "category": "쇼핑", "won": 45000, "card": "KB_MY_WESH", "tags": []},
+  {"date": "2026-03-28", "store": "방탈출카페 홍대", "category": "여가", "won": 22000, "card": "KB_MY_WESH", "tags": []}
+]

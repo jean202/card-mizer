@@ -1,0 +1,11 @@
+[
+  {"date": "2026-03-03", "store": "쿠팡", "category": "온라인쇼핑", "won": 45000, "card": "HYUNDAI_ZERO_POINT", "tags": ["ONLINE", "SIMPLE_PAY_ONLINE"]},
+  {"date": "2026-03-07", "store": "11번가", "category": "온라인쇼핑", "won": 23500, "card": "HYUNDAI_ZERO_POINT", "tags": ["ONLINE", "SIMPLE_PAY_ONLINE"]},
+  {"date": "2026-03-10", "store": "네이버쇼핑", "category": "온라인쇼핑", "won": 18200, "card": "HYUNDAI_ZERO_POINT", "tags": ["ONLINE", "SIMPLE_PAY_ONLINE"]},
+  {"date": "2026-03-14", "store": "무신사", "category": "온라인쇼핑", "won": 59000, "card": "HYUNDAI_ZERO_POINT", "tags": ["ONLINE"]},
+  {"date": "2026-03-18", "store": "마켓컬리", "category": "온라인쇼핑", "won": 41200, "card": "HYUNDAI_ZERO_POINT", "tags": ["ONLINE", "SIMPLE_PAY_ONLINE"]},
+  {"date": "2026-03-21", "store": "SSG닷컴", "category": "온라인쇼핑", "won": 33800, "card": "HYUNDAI_ZERO_POINT", "tags": ["ONLINE", "SIMPLE_PAY_ONLINE"]},
+  {"date": "2026-03-24", "store": "올리브영 온라인", "category": "온라인쇼핑", "won": 28500, "card": "HYUNDAI_ZERO_POINT", "tags": ["ONLINE", "SIMPLE_PAY_ONLINE"]},
+  {"date": "2026-03-27", "store": "배달의민족", "category": "배달", "won": 19800, "card": "HYUNDAI_ZERO_POINT", "tags": ["ONLINE", "SIMPLE_PAY_ONLINE"]},
+  {"date": "2026-03-29", "store": "카카오페이 택시", "category": "교통", "won": 9200, "card": "HYUNDAI_ZERO_POINT", "tags": ["SIMPLE_PAY_ONLINE"]}
+]
