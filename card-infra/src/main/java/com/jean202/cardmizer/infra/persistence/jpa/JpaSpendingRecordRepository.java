@@ -6,5 +6,12 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JpaSpendingRecordRepository extends JpaRepository<JpaSpendingRecordEntity, UUID> {
-    List<JpaSpendingRecordEntity> findBySpentOnBetweenOrderBySpentOnAscIdAsc(LocalDate startDate, LocalDate endDate);
+    List<JpaSpendingRecordEntity> findByDeletedFalseAndSpentOnBetweenOrderBySpentOnAscIdAsc(
+            LocalDate startDate, LocalDate endDate);
+
+    List<JpaSpendingRecordEntity> findByDeletedFalseAndSpentOnBetweenOrderBySpentOnDescIdDesc(
+            LocalDate startDate, LocalDate endDate);
+
+    List<JpaSpendingRecordEntity> findByDeletedFalseAndCardIdAndSpentOnBetweenOrderBySpentOnDescIdDesc(
+            String cardId, LocalDate startDate, LocalDate endDate);
 }

@@ -50,15 +50,12 @@ GET + soft-DELETE for spending records. Hexagonal 4-module approach: ports → s
 ### Phase 2: Flyway migration + JPA entity + JPA adapter + existing queries exclude deleted
 
 - **Goal**: Persistence layer supports soft-delete; existing features unaffected
-- [ ] `card-api/.../resources/db/migration/V3__add_spending_records_deleted_column.sql` — `ALTER TABLE spending_records ADD COLUMN deleted BOOLEAN NOT NULL DEFAULT FALSE;`
-- [ ] `card-infra/.../jpa/JpaSpendingRecordEntity.java` — add `private boolean deleted;` field with `@Column(nullable = false)`. Add to full constructor + getter. **Must be same commit as V3 migration** (`ddl-auto=validate`).
-- [ ] `card-infra/.../jpa/JpaSpendingRecordRepository.java` — add derived queries:
-  - `findByDeletedFalseAndSpentOnBetweenOrderBySpentOnAscIdAsc(LocalDate, LocalDate)` — replaces existing query usage for loadByPeriod (ASC, excludes deleted)
-  - `findByDeletedFalseAndSpentOnBetweenOrderBySpentOnDescIdDesc(LocalDate, LocalDate)` — new for loadByPeriodAndCard all-records case (DESC)
-  - `findByDeletedFalseAndCardIdAndSpentOnBetweenOrderBySpentOnDescIdDesc(String, LocalDate, LocalDate)` — new for card-filtered case (DESC)
-- [ ] `card-infra/.../jpa/JpaSpendingRecordAdapter.java` — implement `LoadSpendingRecordsByCardAndPeriodPort` + `DeleteSpendingRecordPort`. Update existing `loadByPeriod` to use `deletedFalse` query. `delete(UUID)`: findById → check exists & not deleted → set deleted=true → save. Throws `ResourceNotFoundException` otherwise. Add `@Transactional(readOnly=true)` on read methods.
-- [ ] Update `toEntity` mapper to include `deleted` field (always `false` for new records)
-- [ ] Verify: `./gradlew test` — ALL existing tests must still pass
+- [x] `card-api/.../resources/db/migration/V3__add_spending_records_deleted_column.sql` — `ALTER TABLE spending_records ADD COLUMN deleted BOOLEAN NOT NULL DEFAULT FALSE;`
+- [x] `card-infra/.../jpa/JpaSpendingRecordEntity.java` — add `private boolean deleted;` field with `@Column(nullable = false)`. Add to full constructor + getter + setter.
+- [x] `card-infra/.../jpa/JpaSpendingRecordRepository.java` — add derived queries with `deletedFalse` filter
+- [x] `card-infra/.../jpa/JpaSpendingRecordAdapter.java` — implement 4 ports, soft-delete via findById+setDeleted+save
+- [x] Update `toEntity` mapper to include `deleted` field (always `false` for new records)
+- [x] Verify: `./gradlew test` — ALL existing tests pass
 
 ### Phase 3: Controller endpoints + bean wiring + controller tests
 

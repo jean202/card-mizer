@@ -32,6 +32,9 @@ public class JpaSpendingRecordEntity {
     @Column(nullable = false, columnDefinition = "text")
     private String paymentTags;
 
+    @Column(nullable = false)
+    private boolean deleted;
+
     protected JpaSpendingRecordEntity() {
     }
 
@@ -42,7 +45,8 @@ public class JpaSpendingRecordEntity {
             LocalDate spentOn,
             String merchantName,
             String merchantCategory,
-            String paymentTags
+            String paymentTags,
+            boolean deleted
     ) {
         this.id = id;
         this.cardId = cardId;
@@ -51,6 +55,7 @@ public class JpaSpendingRecordEntity {
         this.merchantName = merchantName;
         this.merchantCategory = merchantCategory;
         this.paymentTags = paymentTags;
+        this.deleted = deleted;
     }
 
     public UUID getId() {
@@ -79,5 +84,13 @@ public class JpaSpendingRecordEntity {
 
     public String getPaymentTags() {
         return paymentTags;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }
