@@ -30,22 +30,22 @@ GET + soft-DELETE for spending records. Hexagonal 4-module approach: ports → s
 ### Phase 1: Core ports + InMemory adapter + service tests (vertical slice)
 
 - **Goal**: Domain layer complete with passing tests before touching API/JPA
-- [ ] `card-core/.../core/port/out/LoadSpendingRecordsByCardAndPeriodPort.java` — `List<SpendingRecord> loadByPeriodAndCard(SpendingPeriod period, CardId cardId)`. CardId nullable; sorted DESC. Single method.
-- [ ] `card-core/.../core/port/out/DeleteSpendingRecordPort.java` — `void delete(UUID id)`. Throws `ResourceNotFoundException` if not found/already deleted.
-- [ ] `card-core/.../core/port/in/GetSpendingRecordsUseCase.java` — `List<SpendingRecord> getByPeriod(SpendingPeriod period, CardId cardId)`. CardId nullable.
-- [ ] `card-core/.../core/port/in/DeleteSpendingRecordUseCase.java` — `void delete(UUID id)`.
-- [ ] `card-core/.../core/application/GetSpendingRecordsService.java` — implements `GetSpendingRecordsUseCase`. Depends on `LoadSpendingRecordsByCardAndPeriodPort` only. Constructor validates with `Objects.requireNonNull`.
-- [ ] `card-core/.../core/application/DeleteSpendingRecordService.java` — implements `DeleteSpendingRecordUseCase`. Passthrough to `DeleteSpendingRecordPort.delete(id)`. Constructor validates.
-- [ ] `card-infra/.../persistence/InMemorySpendingRecordAdapter.java` — extend to implement `LoadSpendingRecordsByCardAndPeriodPort` + `DeleteSpendingRecordPort`. Add `Set<UUID> deletedIds`. `delete()` throws `ResourceNotFoundException` if ID unknown or already deleted. All reads filter deletedIds. `loadByPeriodAndCard` sorts DESC + filters by cardId when non-null.
-- [ ] TDD: `GetSpendingRecordsServiceTest` — happy path returns records for period via InMemory adapter
-- [ ] TDD: `GetSpendingRecordsServiceTest` — with cardId filter returns only matching card's records
-- [ ] TDD: `GetSpendingRecordsServiceTest` — without cardId returns all cards' records
-- [ ] TDD: `GetSpendingRecordsServiceTest` — empty period returns empty list
-- [ ] TDD: `GetSpendingRecordsServiceTest` — verify sorting spentOn desc then id desc
-- [ ] TDD: `DeleteSpendingRecordServiceTest` — delete existing record, verify excluded from subsequent loads
-- [ ] TDD: `DeleteSpendingRecordServiceTest` — not found throws `ResourceNotFoundException`
-- [ ] TDD: `DeleteSpendingRecordServiceTest` — already deleted throws `ResourceNotFoundException`
-- [ ] Verify: `./gradlew :card-core:test` && `./gradlew :card-infra:test`
+- [x] `card-core/.../core/port/out/LoadSpendingRecordsByCardAndPeriodPort.java` — `List<SpendingRecord> loadByPeriodAndCard(SpendingPeriod period, CardId cardId)`. CardId nullable; sorted DESC. Single method.
+- [x] `card-core/.../core/port/out/DeleteSpendingRecordPort.java` — `void delete(UUID id)`. Throws `ResourceNotFoundException` if not found/already deleted.
+- [x] `card-core/.../core/port/in/GetSpendingRecordsUseCase.java` — `List<SpendingRecord> getByPeriod(SpendingPeriod period, CardId cardId)`. CardId nullable.
+- [x] `card-core/.../core/port/in/DeleteSpendingRecordUseCase.java` — `void delete(UUID id)`.
+- [x] `card-core/.../core/application/GetSpendingRecordsService.java` — implements `GetSpendingRecordsUseCase`. Depends on `LoadSpendingRecordsByCardAndPeriodPort` only. Constructor validates with `Objects.requireNonNull`.
+- [x] `card-core/.../core/application/DeleteSpendingRecordService.java` — implements `DeleteSpendingRecordUseCase`. Passthrough to `DeleteSpendingRecordPort.delete(id)`. Constructor validates.
+- [x] `card-infra/.../persistence/InMemorySpendingRecordAdapter.java` — extend to implement `LoadSpendingRecordsByCardAndPeriodPort` + `DeleteSpendingRecordPort`. Add `Set<UUID> deletedIds`. `delete()` throws `ResourceNotFoundException` if ID unknown or already deleted. All reads filter deletedIds. `loadByPeriodAndCard` sorts DESC + filters by cardId when non-null.
+- [x] TDD: `GetSpendingRecordsServiceTest` — happy path returns records for period via inline lambda port fake
+- [x] TDD: `GetSpendingRecordsServiceTest` — with cardId filter returns only matching card's records
+- [x] TDD: `GetSpendingRecordsServiceTest` — without cardId returns all cards' records
+- [x] TDD: `GetSpendingRecordsServiceTest` — empty period returns empty list
+- [x] TDD: `GetSpendingRecordsServiceTest` — verify sorting spentOn desc then id desc
+- [x] TDD: `DeleteSpendingRecordServiceTest` — delete existing record delegates to port
+- [x] TDD: `DeleteSpendingRecordServiceTest` — not found throws `ResourceNotFoundException`
+- [x] TDD: `DeleteSpendingRecordServiceTest` — already deleted throws `ResourceNotFoundException`
+- [x] Verify: `./gradlew :card-core:test` && `./gradlew :card-infra:test`
 
 ### Phase 2: Flyway migration + JPA entity + JPA adapter + existing queries exclude deleted
 
