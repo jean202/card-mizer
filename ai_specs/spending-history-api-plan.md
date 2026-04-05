@@ -60,18 +60,14 @@ GET + soft-DELETE for spending records. Hexagonal 4-module approach: ports → s
 ### Phase 3: Controller endpoints + bean wiring + controller tests
 
 - **Goal**: API layer complete; full feature working end-to-end
-- [ ] `card-api/.../config/ApplicationConfiguration.java` — add `Clock` bean: `Clock.system(ZoneId.of("Asia/Seoul"))`. Add `GetSpendingRecordsUseCase` bean (wires `LoadSpendingRecordsByCardAndPeriodPort`). Add `DeleteSpendingRecordUseCase` bean (wires `DeleteSpendingRecordPort`).
-- [ ] `card-api/.../spending/SpendingRecordController.java` — add `Clock` + use case dependencies to constructor. Add:
-  - `GET /api/spending-records` — `@GetMapping` with `@RequestParam(required=false) String yearMonth` and `@RequestParam(required=false) String cardId`. Parse yearMonth via `YearMonth.parse()` (defaults to current KST month via Clock). Returns `SpendingRecordsResponse` wrapper record.
-  - `DELETE /api/spending-records/{id}` — `@DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)` with `@PathVariable UUID id`. Delegates to use case.
-  - Response DTO: `SpendingRecordsResponse(List<SpendingRecordResponse> records, int count, String yearMonth)` record.
-  - Item DTO: `SpendingRecordResponse(UUID id, String cardId, long amount, LocalDate spentOn, String merchantName, String merchantCategory, Set<String> paymentTags)` record with `static from(SpendingRecord)` factory.
-- [ ] TDD: `SpendingRecordControllerTest` — GET with yearMonth returns wrapped response (capturing spy for `GetSpendingRecordsUseCase`, fixed `Clock`)
-- [ ] TDD: `SpendingRecordControllerTest` — GET with yearMonth + cardId passes CardId to use case
-- [ ] TDD: `SpendingRecordControllerTest` — GET without params defaults to current KST month
-- [ ] TDD: `SpendingRecordControllerTest` — DELETE calls use case with correct UUID
-- [ ] TDD: extend `JpaPersistenceFlowIntegrationTest` — POST spending → DELETE → verify GET excludes it; verify loadByPeriod excludes deleted
-- [ ] Verify: `./gradlew test` — zero failures
+- [x] `card-api/.../config/ApplicationConfiguration.java` — add Clock, GetSpendingRecordsUseCase, DeleteSpendingRecordUseCase beans
+- [x] `card-api/.../spending/SpendingRecordController.java` — add GET + DELETE endpoints with response DTOs
+- [x] TDD: `SpendingRecordControllerGetDeleteTest` — GET with yearMonth returns wrapped response
+- [x] TDD: `SpendingRecordControllerGetDeleteTest` — GET with yearMonth + cardId passes CardId to use case
+- [x] TDD: `SpendingRecordControllerGetDeleteTest` — GET without params defaults to current KST month
+- [x] TDD: `SpendingRecordControllerGetDeleteTest` — DELETE calls use case with correct UUID
+- [x] TDD: extend `JpaPersistenceFlowIntegrationTest` — POST → GET → DELETE → verify excluded from GET and overview
+- [x] Verify: `./gradlew test` — zero failures
 
 ## Risks / Out of scope
 

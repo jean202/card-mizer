@@ -1,6 +1,9 @@
 package com.jean202.cardmizer.api;
 
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -126,6 +129,38 @@ class JpaPersistenceFlowIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[?(@.cardId == 'JPA_TEST_CARD')].spentAmount", hasItem(10000)))
                 .andExpect(jsonPath("$[?(@.cardId == 'JPA_TEST_CARD')].targetTierCode", hasItem("TEST_30")));
+
+        // Verify spending record appears in GET list
+        String spendingRecordsJson = mockMvc.perform(get("/api/spending-records")
+                        .queryParam("yearMonth", "2026-03")
+                        .queryParam("cardId", "JPA_TEST_CARD"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.count").value(1))
+                .andExpect(jsonPath("$.records[0].cardId").value("JPA_TEST_CARD"))
+                .andReturn().getResponse().getContentAsString();
+
+        // Extract record ID and soft-delete it
+        String recordId = com.jayway.jsonpath.JsonPath.read(spendingRecordsJson, "$.records[0].id");
+        mockMvc.perform(delete("/api/spending-records/" + recordId))
+                .andExpect(status().isNoContent());
+
+        // Verify deleted record excluded from GET
+        mockMvc.perform(get("/api/spending-records")
+                        .queryParam("yearMonth", "2026-03")
+                        .queryParam("cardId", "JPA_TEST_CARD"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.count").value(0))
+                .andExpect(jsonPath("$.records", empty()));
+
+        // Verify deleted record excluded from performance overview
+        mockMvc.perform(get("/api/performance-overview")
+                        .queryParam("yearMonth", "2026-03"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.cardId == 'JPA_TEST_CARD')].spentAmount", hasItem(0)));
+
+        // Verify DELETE of already-deleted record returns 404
+        mockMvc.perform(delete("/api/spending-records/" + recordId))
+                .andExpect(status().isNotFound());
 
         mockMvc.perform(patch("/api/cards/priorities")
                         .contentType(MediaType.APPLICATION_JSON)
