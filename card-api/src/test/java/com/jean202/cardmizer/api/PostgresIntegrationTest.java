@@ -8,43 +8,45 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * Integration test that runs against a real PostgreSQL instance.
- * Requires {@code docker compose up -d} to be running (port 55432).
- * <p>
+ * Integration test that runs against a Testcontainers-managed PostgreSQL instance.
  * Verifies Flyway migrations, JPA persistence, and JSON column storage
- * work correctly with PostgreSQL (not just H2).
- * <p>
- * Skipped automatically when PostgreSQL is not available.
+ * work correctly with real PostgreSQL.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("postgres")
-@EnabledIf("isPostgresAvailable")
+@Testcontainers(disabledWithoutDocker = true)
 class PostgresIntegrationTest {
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
+            .withDatabaseName("cardmizer")
+            .withUsername("cardmizer")
+            .withPassword("cardmizer");
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "validate");
+        registry.add("spring.flyway.enabled", () -> "true");
+    }
+
     @Autowired
     private MockMvc mockMvc;
-
-    static boolean isPostgresAvailable() {
-        try (Connection conn = DriverManager.getConnection(
-                "jdbc:postgresql://localhost:55432/cardmizer", "cardmizer", "cardmizer")) {
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
     @Test
     @Sql(scripts = "/cleanup-postgres-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -82,7 +84,7 @@ class PostgresIntegrationTest {
                                   "benefitRules": [
                                     {
                                       "ruleId": "PG_OTT",
-                                      "benefitSummary": "OTT 10% 할인",
+                                      "benefitSummary": "OTT 10%% 할인",
                                       "benefitType": "RATE_PERCENT",
                                       "merchantCategories": ["OTT"],
                                       "requiredTags": ["SUBSCRIPTION"],
