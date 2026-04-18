@@ -1,6 +1,6 @@
 # card-mizer
 
-카드 실적, 혜택 정책, 우선순위를 계산해 결제 카드를 추천하는 Java/Spring 백엔드 데모입니다.
+카드 실적, 혜택 정책, 우선순위를 계산해 결제 카드를 추천하는 Kotlin/Spring 백엔드 데모입니다.
 
 ## Problem
 
@@ -8,11 +8,12 @@
 
 ## What This Repository Proves
 
-- Java/Spring 기반 도메인 로직 설계 및 구현 역량
+- Kotlin/Spring 기반 도메인 로직 설계 및 구현 역량
 - 헥사고날 아키텍처와 Gradle 멀티모듈 적용 능력
 - 단순 CRUD보다 도메인 판단 로직이 중심인 백엔드 모델링
 - 거래 정규화와 카드 혜택 규칙 모델링 능력
 - 외부 API 연동 어댑터 설계 (인증, 재시도, 에러 핸들링)
+- Java → Kotlin 전환 과정에서 언어 간 런타임·stdlib 차이로 기인한 버그 발굴 및 수정
 - 문서와 테스트로 설계 근거를 남기는 습관
 
 ## Current State
@@ -23,7 +24,9 @@
 - 스키마는 Flyway migration으로 관리하고, 기본 프로파일은 `h2`입니다.
 - 신규 카드 등록 시 기본 실적 정책을 함께 생성해 추천/실적 조회 흐름이 깨지지 않도록 맞췄습니다.
 - 가맹점/태그 정규화 규칙과 추천 시나리오는 YAML fixture로 관리합니다.
-- `./gradlew test` 기준 단위·통합 테스트(25개 파일)가 통과합니다.
+- Java 17 기반 전체 소스코드(메인 91개 파일, 테스트 30개 파일)를 Kotlin으로 전환했습니다.
+- 전환 과정에서 두 언어의 런타임·stdlib 차이로 기인한 버그 4개를 발굴·수정했습니다. 자세한 내용은 [`docs/kotlin-migration.md`](docs/kotlin-migration.md)를 참고하세요.
+- `./gradlew test` 기준 단위·통합 테스트(30개 파일)가 통과합니다.
 
 ## Architecture Snapshot
 
@@ -190,9 +193,9 @@ curl "http://localhost:8080/api/performance-overview?yearMonth=2026-03"
 
 ## Stack
 
-- Java 17
+- Kotlin 2.1 / JVM 17
 - Spring Boot 3.4
-- Gradle Multi-module
+- Gradle Multi-module (Kotlin DSL)
 - Spring Web + Spring Data JPA
 - Flyway (schema migration)
 - H2 (기본) / PostgreSQL (프로파일)
@@ -210,6 +213,7 @@ curl "http://localhost:8080/api/performance-overview?yearMonth=2026-03"
 - `docs/adr/README.md`: ADR 목록과 상태
 - `docs/delivery-plan.md`: 다음 마일스톤과 작업 큐
 - `docs/work-log-2026-03-31.md`: 2026-03-31 구현/검증 복기 노트
+- `docs/kotlin-migration.md`: Java → Kotlin 전환 기록과 발굴 버그 상세 분석
 
 ## Status
 

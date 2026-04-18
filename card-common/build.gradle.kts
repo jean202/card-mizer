@@ -1,3 +1,1 @@
-plugins {
-    `java-library`
-}
+// kotlin("jvm") + java-library applied from root

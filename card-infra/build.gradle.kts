@@ -1,5 +1,6 @@
 plugins {
-    `java-library`
+    kotlin("plugin.spring")
+    kotlin("plugin.jpa")
 }
 
 dependencies {
@@ -8,4 +9,5 @@ dependencies {
     implementation(project(":card-core"))
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 }
