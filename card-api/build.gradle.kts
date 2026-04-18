@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.testing.Test
+
 plugins {
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
@@ -21,4 +24,18 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+}
+
+val testSourceSet = the<SourceSetContainer>()["test"]
+
+tasks.register<Test>("postgresIntegrationTest") {
+    description = "Runs the PostgreSQL/Testcontainers integration flow."
+    group = "verification"
+    testClassesDirs = testSourceSet.output.classesDirs
+    classpath = testSourceSet.runtimeClasspath
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching("com.jean202.cardmizer.api.PostgresIntegrationTest")
+    }
+    shouldRunAfter(tasks.named<Test>("test"))
 }

@@ -68,6 +68,7 @@ class CardPerformancePolicyController(
         )
     }
 
+    @ValidPatchCardPerformancePolicyRequest
     data class PatchCardPerformancePolicyRequest(
         @field:Valid
         val tiers: List<PerformanceTierRequest>?,
@@ -97,6 +98,7 @@ class CardPerformancePolicyController(
         fun toDomain() = PerformanceTier(code, Money.won(targetAmount), benefitSummary)
     }
 
+    @ValidBenefitRuleRequest
     data class BenefitRuleRequest(
         @field:NotBlank(message = "ruleId must not be blank")
         val ruleId: String,

@@ -26,7 +26,8 @@
 - 가맹점/태그 정규화 규칙과 추천 시나리오는 YAML fixture로 관리합니다.
 - Java 17 기반 전체 소스코드(메인 91개 파일, 테스트 30개 파일)를 Kotlin으로 전환했습니다.
 - 전환 과정에서 두 언어의 런타임·stdlib 차이로 기인한 버그 4개를 발굴·수정했습니다. 자세한 내용은 [`docs/kotlin-migration.md`](docs/kotlin-migration.md)를 참고하세요.
-- `./gradlew test` 기준 단위·통합 테스트(30개 파일)가 통과합니다.
+- GitHub Actions CI가 `./gradlew test`와 `:card-api:postgresIntegrationTest`를 자동 검증합니다.
+- `./gradlew test` 기준 단위·통합 테스트가 통과하며, PostgreSQL/Testcontainers 경로는 전용 태스크로도 검증할 수 있습니다.
 
 ## Architecture Snapshot
 
@@ -67,6 +68,7 @@ flowchart LR
 
 ```bash
 ./gradlew test
+./gradlew :card-api:postgresIntegrationTest
 ./gradlew :card-api:bootRun
 ```
 
@@ -182,12 +184,15 @@ curl "http://localhost:8080/api/performance-overview?yearMonth=2026-03"
 - `SyncCardTransactionsServiceTest`: 외부 API 거래 동기화 흐름 검증
 - `CardCompanySimulatorControllerTest`: 시뮬레이터 인증, 월별 데이터 변동, 에러 시뮬레이션 검증
 - `SyncFlowIntegrationTest`: 시뮬레이터 → 어댑터 → 서비스 end-to-end 검증
+- `RecommendationApiEndToEndIntegrationTest`: YAML 시나리오를 JPA/H2 + HTTP 경로로 재현해 기대 추천 카드 검증
+- `PostgresIntegrationTest`: Flyway + PostgreSQL/Testcontainers 기준 주요 API 흐름 검증
 - `TransactionNormalizerTest`: 가맹점/태그 정규화 규칙 검증
 - `RecommendationDemoScenarioFixtureTest`: YAML 시나리오가 기대한 추천 결과를 실제로 만드는지 검증
 
 ## Deferred Work
 
-- 운영용 PostgreSQL 설정과 Testcontainers 기반 통합 테스트
+- 추천 스코어링과 정책 직렬화 판단에 대한 ADR 보강
+- 운영용 PostgreSQL 전환과 배포 설정 구체화
 - 다중 사용자 지원 (인증/인가)
 - 실적 달성 임박 알림 시스템
 

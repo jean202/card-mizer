@@ -19,7 +19,7 @@ import java.util.UUID
 class FileBasedCardTransactionsAdapter(
     private val objectMapper: ObjectMapper,
     private val resourceLoader: ResourceLoader,
-    @Value("\${cardcompany.file.directory:classpath:transactions}") private val directory: String,
+    @param:Value("\${cardcompany.file.directory:classpath:transactions}") private val directory: String,
 ) : FetchCardTransactionsPort {
 
     override fun fetchByCardAndPeriod(cardId: CardId, period: SpendingPeriod): List<SpendingRecord> {

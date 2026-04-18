@@ -6,8 +6,9 @@
 - 추천, 실적 조회, 사용 내역 입력, 카드 등록, 우선순위 조정, 카드 정책 조회/교체/부분 수정 API가 모두 구현돼 있다.
 - 입력 검증과 구조화된 예외 응답이 적용돼 있다.
 - springdoc-openapi + Scalar UI 기반 API 문서가 `/api-docs.html`에서 제공된다.
-- 핵심 도메인 로직, 컨트롤러, persistence 흐름은 단위 테스트와 통합 테스트로 검증된다.
-- 다음 마일스톤의 핵심은 설계 근거 문서화(ADR)와 테스트 보강이다.
+- GitHub Actions CI가 `./gradlew test`와 `:card-api:postgresIntegrationTest`를 자동 검증한다.
+- 추천 API는 DB 기반 시나리오 end-to-end 테스트로 검증되고, PostgreSQL/Testcontainers 경로도 전용 태스크로 검증된다.
+- 다음 마일스톤의 핵심은 설계 근거 문서화(ADR)와 운영 경로 구체화다.
 
 ## GitHub Projects Board
 
@@ -33,13 +34,13 @@
 | 우선순위 | 목표 | 결과물 |
 |------|------|--------|
 | 1 | 설계 근거 문서화 | 추천 스코어링, 정책 JSON 직렬화 등 핵심 ADR 추가 |
-| 2 | PostgreSQL 통합 테스트 | Testcontainers 기반 마이그레이션 + 주요 흐름 검증 |
-| 3 | 추천 E2E 테스트 보강 | DB 기반 시나리오 테스트로 추천 흐름 end-to-end 검증 |
-| 4 | 문서 최종 점검 | README, 설계 문서, API 문서 링크 정리 |
+| 2 | 운영용 PostgreSQL 경로 구체화 | 실행/배포 가이드, 환경 변수, compose 사용 경계 정리 |
+| 3 | 다중 사용자 지원 설계 | 인증/인가 범위와 저장 모델 초안 |
+| 4 | 실적 임박 알림 설계 | 임계치 계산, 이벤트, 스케줄링 방향 정리 |
 
 ## Next Milestone Exit Criteria
 
 - 추천 스코어링과 정책 직렬화에 대한 ADR이 작성돼 있다.
-- PostgreSQL 환경에서 Flyway 마이그레이션과 주요 API 흐름이 통합 테스트로 검증된다.
-- 추천 API가 DB 기반 end-to-end 시나리오 테스트로 검증된다.
-- README와 docs 링크만 읽어도 현재 구현 상태와 다음 단계가 파악된다.
+- 운영용 PostgreSQL 실행 경로와 환경 변수 전략이 문서화돼 있다.
+- 다중 사용자 지원을 위한 인증/인가 범위가 결정돼 있다.
+- 실적 임박 알림의 진입점과 계산 책임이 문서로 정리돼 있다.

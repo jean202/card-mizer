@@ -95,7 +95,60 @@ class ApiValidationIntegrationTest {
         )
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
-            .andExpect(jsonPath("$.message").value("At least one of tiers or benefitRules must be provided"))
+            .andExpect(jsonPath("$.message").value("Validation failed"))
             .andExpect(jsonPath("$.path").value("/api/cards/SAMSUNG_KPASS/performance-policy"))
+            .andExpect(jsonPath("$.fieldErrors[*].field", hasItems("tiers", "benefitRules")))
+    }
+
+    @Test
+    fun validatesConditionalBenefitRuleFieldsAsStructuredErrors() {
+        mockMvc.perform(
+            put("/api/cards/SAMSUNG_KPASS/performance-policy")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {
+                      "tiers": [
+                        {
+                          "code": "KPASS_40",
+                          "targetAmount": 400000,
+                          "benefitSummary": "전월 40만원 이상 혜택 구간"
+                        }
+                      ],
+                      "benefitRules": [
+                        {
+                          "ruleId": "KPASS_TRANSIT",
+                          "benefitSummary": "대중교통 할인",
+                          "benefitType": "RATE_PERCENT",
+                          "rateBasisPoints": 0,
+                          "fixedBenefitAmount": 1000
+                        },
+                        {
+                          "ruleId": "KPASS_CAFE",
+                          "benefitSummary": "카페 할인",
+                          "benefitType": "FIXED_AMOUNT",
+                          "rateBasisPoints": 1000,
+                          "fixedBenefitAmount": 0
+                        }
+                      ]
+                    }
+                    """.trimIndent(),
+                ),
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+            .andExpect(jsonPath("$.message").value("Validation failed"))
+            .andExpect(jsonPath("$.path").value("/api/cards/SAMSUNG_KPASS/performance-policy"))
+            .andExpect(
+                jsonPath(
+                    "$.fieldErrors[*].field",
+                    hasItems(
+                        "benefitRules[0].rateBasisPoints",
+                        "benefitRules[0].fixedBenefitAmount",
+                        "benefitRules[1].rateBasisPoints",
+                        "benefitRules[1].fixedBenefitAmount",
+                    ),
+                ),
+            )
     }
 }

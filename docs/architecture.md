@@ -25,7 +25,7 @@ flowchart LR
 
 ## Dependency Rules
 
-- `card-core`는 순수 Java 모듈로 유지하고 Spring/JPA에 의존하지 않는다.
+- `card-core`는 프레임워크 비의존 Kotlin 모듈로 유지하고 Spring/JPA에 의존하지 않는다.
 - `card-api`는 inbound adapter이자 조립 루트로 동작하며, core와 infra를 스프링 빈으로 연결한다.
 - `card-infra`는 outbound port 구현만 담당하고 추천 정책을 소유하지 않는다.
 - 공통 값 객체는 `card-common`에 두되, 비즈니스 규칙은 `card-core`로 올린다.
@@ -39,20 +39,20 @@ flowchart LR
 
 ## Current Adapters
 
-- Persistence adapter: 인메모리 카드 카탈로그, 카드 정책, 사용 내역 저장
+- Persistence adapter: JPA/H2 기본 경로와 PostgreSQL 프로파일
 - Manual input adapter: REST 요청 기반 사용 내역 입력
 - Rule loader adapter: YAML 기반 가맹점 정규화 규칙과 데모 시나리오 로딩
 - Demo adapter: Spring Boot static resources로 제공되는 시연 화면
+- Seed-data adapter: `InMemory*Adapter` 기반 초기 카드/정책 fixture 제공
 
 ## Deferred Adapters
 
-- Persistence adapter: PostgreSQL + JPA
 - Card company adapter: 후속 단계의 카드사별 조회 연동
 - Notification adapter: 실적 임박 또는 추천 결과 알림
 
 ## Design Constraints
 
-- 현재 기준선은 수동 입력, 실적 조회, 추천 계산을 인메모리로 설명 가능하게 만드는 데 집중한다.
+- 현재 기준선은 수동 입력, 실적 조회, 추천 계산을 JPA/H2 기반으로 실행 가능하게 유지하는 데 집중한다.
 - 고성능 분산 아키텍처보다 설계 설명 가능성과 테스트 용이성을 우선한다.
 - 외부 연동이 추가되더라도 core 모듈의 도메인 인터페이스는 유지되어야 한다.
 - `card-api`는 현재 조립 루트 역할과 데모 시연 책임을 함께 가진다.

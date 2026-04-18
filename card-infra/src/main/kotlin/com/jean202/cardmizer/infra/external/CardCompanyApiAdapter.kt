@@ -22,8 +22,8 @@ import java.util.UUID
 @Profile("!file-sync")
 class CardCompanyApiAdapter(
     private val objectMapper: ObjectMapper,
-    @Value("\${cardcompany.api.base-url:http://localhost:8080/simulator/api/v1}") private val baseUrl: String,
-    @Value("\${cardcompany.api.key:sim-api-key-2026}") private val apiKey: String,
+    @param:Value("\${cardcompany.api.base-url:http://localhost:8080/simulator/api/v1}") private val baseUrl: String,
+    @param:Value("\${cardcompany.api.key:sim-api-key-2026}") private val apiKey: String,
 ) : FetchCardTransactionsPort {
 
     private val httpClient: HttpClient = HttpClient.newBuilder()

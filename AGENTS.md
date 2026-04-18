@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This repository is a Java/Spring backend demo for recommending which payment card to use based on monthly spending progress and benefit rules.
+This repository is a Kotlin/Spring backend demo for recommending which payment card to use based on monthly spending progress and benefit rules.
 
 ## Module Map
 
@@ -20,7 +20,7 @@ This repository is a Java/Spring backend demo for recommending which payment car
   - spending record creation
   - card registration
   - card priority update
-  - card performance policy read/replace
+  - card performance policy read/replace/patch
 - Static demo UI is served by `card-api`.
 
 ## Important Implementation Rules
@@ -31,9 +31,10 @@ This repository is a Java/Spring backend demo for recommending which payment car
 - New card registration must also create a default card performance policy.
   - Reason: recommendation and performance overview assume every configured card has a policy.
   - Current default tier code is `DEFAULT_BASE`.
-- Card policy management currently uses full replacement.
-  - Endpoint shape: `GET/PUT /api/cards/{cardId}/performance-policy`
+- Card policy management supports both full replacement and partial patch.
+  - Endpoint shape: `GET/PUT/PATCH /api/cards/{cardId}/performance-policy`
   - `PUT` replaces the entire tier list and benefit rule list for that card.
+  - `PATCH` keeps unspecified sections and only updates provided `tiers` and/or `benefitRules`.
 - Priority updates must include every configured card exactly once.
   - Partial reorder requests are rejected by design.
 
@@ -53,12 +54,14 @@ This repository is a Java/Spring backend demo for recommending which payment car
 - Card priority update endpoint: `PATCH /api/cards/priorities`
 - Card policy read endpoint: `GET /api/cards/{cardId}/performance-policy`
 - Card policy replace endpoint: `PUT /api/cards/{cardId}/performance-policy`
+- Card policy patch endpoint: `PATCH /api/cards/{cardId}/performance-policy`
 - Bad request handling is centralized in `card-api` via `ApiExceptionHandler`.
 
 ## Run And Verify
 
 ```bash
 ./gradlew test
+./gradlew :card-api:postgresIntegrationTest
 ./gradlew :card-api:bootRun
 ```
 
@@ -66,6 +69,6 @@ This repository is a Java/Spring backend demo for recommending which payment car
 
 ## Likely Next Work
 
-- Add validation annotations and a more structured error payload if API hardening continues.
-- Move the demo database from H2 to PostgreSQL with explicit migration scripts.
-- Add partial card policy edit flows or UI integration on top of the current full-replacement API.
+- Add ADRs for recommendation scoring and policy JSON serialization decisions.
+- Harden the production PostgreSQL runtime path and deployment guidance.
+- Explore multi-user auth and threshold alert flows.
